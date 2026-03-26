@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ledger PGH">
+<meta name="theme-color" content="#0a0a0a">
+<title>Ledger · Pittsburgh</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0a0a;--card:#161616;--card2:#1e1e1e;--border:#2a2a2a;--border2:#333;
+  --slate:#6a6a6a;--muted:#444;--text:#e8e8e8;--text2:#aaa;
+  --gold:#FFB612;--gold2:#e6a400;--gold-dim:rgba(255,182,18,.12);
+  --green:#3ecf8e;--red:#ef4444;--blue:#4a9eff;
+  --safe-top:env(safe-area-inset-top,44px);
+  --safe-bot:env(safe-area-inset-bottom,34px);
+  --tab-h:60px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--black);color:var(--text);height:100%;overflow:hidden;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:calc(var(--tab-h) + var(--safe-bot));font-size:15px;-webkit-font-smoothing:antialiased;}
+.status-fill{position:fixed;top:0;left:0;right:0;height:var(--safe-top);background:var(--black);z-index:300;}
+.app-shell{flex:1;position:relative;overflow:hidden;}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:none;background:var(--black);}
+.page.active{display:block;animation:pgIn .22s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* TAB BAR */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-bot));padding-bottom:var(--safe-bot);background:rgba(10,10,10,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(255,182,18,.15);display:flex;align-items:flex-start;justify-content:space-around;padding-top:6px;z-index:200;}
+.tab-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:color .2s;position:relative;min-width:64px;}
+.tab-btn.active{color:var(--gold);}
+.tab-btn.active svg{filter:drop-shadow(0 0 5px rgba(255,182,18,.45));}
+.tab-dot{position:absolute;top:4px;right:10px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--black);display:none;}
+.tab-dot.show{display:block;}
+
+/* PAGE TOP */
+.page-top{background:var(--black);padding:16px 20px 12px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);}
+.page-top-title{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;line-height:1;}
+.page-top-sub{font-size:12px;color:var(--slate);margin-top:3px;}
+
+/* SECTION LABEL */
+.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:20px 20px 8px;}
+
+/* SNAPSHOT HERO */
+.snap-hero{background:linear-gradient(160deg,#0f0f00 0%,#0a0800 60%,#000 100%);padding:24px 20px 28px;position:relative;overflow:hidden;}
+.snap-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(255,182,18,.015) 30px,rgba(255,182,18,.015) 31px),repeating-linear-gradient(-45deg,transparent,transparent 30px,rgba(255,182,18,.015) 30px,rgba(255,182,18,.015) 31px);}
+.hero-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,182,18,.5);margin-bottom:6px;position:relative;z-index:1;}
+.hero-net{font-family:'DM Serif Display',serif;font-size:54px;line-height:1;color:#fff;margin-bottom:5px;position:relative;z-index:1;}
+.hero-net.neg{color:#f87171;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.38);position:relative;z-index:1;}
+.hero-chips{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1;}
+.chip{padding:6px 13px;border-radius:100px;font-size:12px;font-weight:600;border:1px solid;}
+.chip-gold{background:rgba(255,182,18,.12);color:var(--gold);border-color:rgba(255,182,18,.3);}
+.chip-grn{background:rgba(62,207,142,.12);color:var(--green);border-color:rgba(62,207,142,.3);}
+.chip-red{background:rgba(239,68,68,.12);color:#f87171;border-color:rgba(239,68,68,.3);}
+.chip-blu{background:rgba(74,158,255,.12);color:var(--blue);border-color:rgba(74,158,255,.3);}
+.bridge-wm{position:absolute;bottom:0;right:-8px;width:180px;opacity:.055;pointer-events:none;z-index:0;}
+
+/* HSCROLL */
+.hscroll{display:flex;gap:12px;padding:0 20px 4px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.hscroll::-webkit-scrollbar{display:none;}
+
+/* KPI CARD */
+.kpi-card{flex-shrink:0;width:148px;scroll-snap-align:start;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;}
+.kpi-card.gborder{border-color:rgba(255,182,18,.3);}
+.kpi-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.kpi-val{font-family:'DM Serif Display',serif;font-size:25px;color:#fff;line-height:1;margin-bottom:4px;}
+.kpi-sub{font-size:11px;color:var(--slate);}
+.kpi-delta{font-size:12px;font-weight:600;margin-top:4px;}
+.up{color:var(--red);}.dn{color:var(--green);}.pos{color:var(--green);}.neg-c{color:var(--red);}
+
+/* RINGS */
+.rings-row{display:flex;gap:10px;padding:0 20px;overflow-x:auto;scrollbar-width:none;}
+.rings-row::-webkit-scrollbar{display:none;}
+.ring-card{flex-shrink:0;width:108px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px 10px;text-align:center;}
+.ring-svg{width:60px;height:60px;margin:0 auto 8px;}
+.ring-bg{fill:none;stroke:#1e1e1e;stroke-width:7;}
+.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s ease;}
+.ring-pct{font-family:'DM Serif Display',serif;font-size:13px;fill:#fff;}
+.ring-name{font-size:10px;font-weight:600;color:var(--slate);line-height:1.3;margin-top:2px;}
+
+/* CATEGORY ROWS */
+.cat-row{display:flex;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);gap:13px;}
+.cat-row:last-child{border-bottom:none;}
+.cat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cat-info{flex:1;}
+.cat-name{font-weight:500;font-size:14px;color:var(--text);}
+.cat-pct{font-size:11px;color:var(--slate);margin-top:1px;}
+.cat-bar-bg{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;flex:1;max-width:72px;}
+.cat-bar-fill{height:100%;border-radius:2px;transition:width .6s;}
+.cat-amt{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--text);text-align:right;flex-shrink:0;min-width:68px;}
+
+/* ALERT CARDS */
+.alert-card{margin:0 16px 12px;border-radius:16px;padding:16px;border:1px solid;display:flex;gap:12px;}
+.a-danger{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.25);}
+.a-warn{background:rgba(255,182,18,.07);border-color:rgba(255,182,18,.25);}
+.a-info{background:rgba(74,158,255,.07);border-color:rgba(74,158,255,.25);}
+.a-good{background:rgba(62,207,142,.07);border-color:rgba(62,207,142,.25);}
+.alert-emoji{font-size:24px;flex-shrink:0;line-height:1;}
+.alert-body-wrap{flex:1;}
+.alert-title{font-weight:700;font-size:14px;color:var(--text);margin-bottom:5px;line-height:1.3;}
+.alert-body{font-size:12px;color:#777;line-height:1.55;}
+.alert-action{margin-top:8px;font-size:11px;font-weight:600;color:var(--blue);}
+
+/* AMAZON */
+.amz-hero{background:linear-gradient(160deg,#0f0c00,#0a0700);padding:22px 20px 20px;border-bottom:1px solid rgba(255,182,18,.15);}
+.amz-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,153,0,.45);margin-bottom:5px;}
+.amz-title{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;}
+.amz-title span{color:#ff9900;}
+.amz-big{font-family:'DM Serif Display',serif;font-size:40px;color:#ff9900;margin:7px 0 3px;}
+.amz-big-sub{font-size:12px;color:rgba(255,255,255,.32);}
+.amz-stats{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);}
+.amz-stat{flex:1;background:var(--card);border-radius:12px;padding:11px;border:1px solid var(--border);}
+.amz-stat-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.amz-stat-val{font-family:'DM Serif Display',serif;font-size:19px;color:#fff;}
+.amz-filters{display:flex;gap:8px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);}
+.amz-filters::-webkit-scrollbar{display:none;}
+.f-pill{flex-shrink:0;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:500;border:1px solid var(--border2);background:var(--card);color:var(--slate);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.f-pill.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.amz-item{padding:13px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;}
+.amz-item:last-child{border-bottom:none;}
+.amz-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,153,0,.1);border:1px solid rgba(255,153,0,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.amz-info{flex:1;}
+.amz-item-title{font-weight:500;font-size:13px;color:var(--text);line-height:1.35;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.amz-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.amz-date{font-size:11px;color:var(--muted);}
+.amz-cat{font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;background:rgba(74,158,255,.12);color:var(--blue);font-family:'DM Mono',monospace;}
+.imp-hi{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;}
+.imp-md{background:rgba(255,182,18,.15);color:var(--gold);border:1px solid rgba(255,182,18,.3);font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;}
+.amz-price{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--gold);margin-left:auto;flex-shrink:0;}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:100%;}
+.chat-head{background:var(--black);padding:16px 20px 14px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);flex-shrink:0;}
+.chat-title{font-family:'DM Serif Display',serif;font-size:26px;color:#fff;}
+.chat-sub{font-size:12px;color:var(--slate);margin-top:2px;}
+.chat-status{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+.status-txt{font-size:11px;color:var(--green);font-weight:500;}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch;min-height:0;}
+.bubble{max-width:86%;border-radius:20px;padding:12px 16px;font-size:14px;line-height:1.55;}
+.bubble-u{align-self:flex-end;background:var(--gold);color:#000;font-weight:500;border-bottom-right-radius:6px;}
+.bubble-a{align-self:flex-start;background:var(--card);color:var(--text);border-bottom-left-radius:6px;border:1px solid var(--border);}
+.bubble-a strong{color:var(--gold);}
+.ai-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.ai-star{width:10px;height:10px;background:var(--gold);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}
+.typing-wrap{align-self:flex-start;background:var(--card);padding:14px 18px;border-radius:20px;border-bottom-left-radius:6px;display:flex;gap:5px;align-items:center;border:1px solid var(--border);}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:tb 1.2s infinite ease-in-out;}
+.tdot:nth-child(2){animation-delay:.2s;}.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-8px);}}
+.suggests{display:flex;gap:8px;padding:8px 16px 4px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.suggests::-webkit-scrollbar{display:none;}
+.s-pill{flex-shrink:0;padding:9px 14px;background:var(--card);border:1px solid var(--border);border-radius:100px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;}
+.s-pill:active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.chat-input-wrap{padding:10px 16px;background:var(--black);border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.chat-input{flex:1;border:1.5px solid var(--border2);border-radius:22px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--card);color:var(--text);outline:none;resize:none;max-height:120px;line-height:1.4;-webkit-appearance:none;}
+.chat-input::placeholder{color:var(--muted);}
+.chat-input:focus{border-color:var(--gold);}
+.chat-send{width:44px;height:44px;border-radius:50%;background:var(--gold);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.chat-send:active{transform:scale(0.93);background:var(--gold2);}
+.chat-send svg{color:#000;}
+
+/* MISC */
+.empty-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 28px;min-height:55vh;text-align:center;}
+.empty-icon{font-size:52px;margin-bottom:14px;}
+.empty-title{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;margin-bottom:8px;}
+.empty-sub{font-size:13px;color:var(--slate);line-height:1.6;}
+.data-note{margin:12px 16px;padding:12px 16px;background:rgba(255,182,18,.06);border:1px solid rgba(255,182,18,.2);border-radius:12px;font-size:12px;color:var(--slate);line-height:1.6;}
+.data-note strong{color:var(--gold);}
+.badge-blu{background:rgba(74,158,255,.15);color:var(--blue);}
+.pgh-star{display:inline-block;width:10px;height:10px;background:var(--gold);margin-right:4px;vertical-align:middle;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}
+.toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-bot) + 12px);left:16px;right:16px;background:var(--gold);color:#000;padding:13px 18px;border-radius:14px;font-size:13px;font-weight:700;text-align:center;box-shadow:0 4px 24px rgba(255,182,18,.4);z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+<div class="status-fill"></div>
+<div class="app-shell">
+
+  <!-- PAGE: SNAPSHOT -->
+  <div class="page active" id="pg-snapshot"><div id="snap-out"></div></div>
+
+  <!-- PAGE: ALERTS -->
+  <div class="page" id="pg-alerts">
+    <div class="page-top"><div class="page-top-title">Alerts</div><div class="page-top-sub" id="alerts-sub">Intelligence flags</div></div>
+    <div style="padding:16px 0;" id="alerts-out"></div>
+  </div>
+
+  <!-- PAGE: AMAZON -->
+  <div class="page" id="pg-amazon"><div id="amz-out"></div></div>
+
+  <!-- PAGE: CHAT -->
+  <div class="page" id="pg-chat">
+    <div class="chat-wrap" style="height:100%;">
+      <div class="chat-head">
+        <div class="chat-title">Ask Ledger</div>
+        <div class="chat-sub">Your personal finance assistant</div>
+        <div class="chat-status">
+          <div class="status-dot"></div>
+          <div class="status-txt" id="chatStatus">Ready · powered by Claude</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="suggests" id="suggestRow">
+        <div class="s-pill" onclick="sendQ(this)">How are we doing this month?</div>
+        <div class="s-pill" onclick="sendQ(this)">Where is the money going?</div>
+        <div class="s-pill" onclick="sendQ(this)">What should I watch out for?</div>
+        <div class="s-pill" onclick="sendQ(this)">How are we doing on our goals?</div>
+        <div class="s-pill" onclick="sendQ(this)">What did we spend on Amazon lately?</div>
+        <div class="s-pill" onclick="sendQ(this)">Give me the big picture</div>
+        <div class="s-pill" onclick="sendQ(this)">What's our savings rate trend?</div>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask anything about your finances…" onkeydown="handleKey(event)" oninput="autoSize(this)"></textarea>
+        <button class="chat-send" onclick="sendChat()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-snapshot" onclick="go('snapshot')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Snapshot
+  </button>
+  <button class="tab-btn" id="tab-alerts" onclick="go('alerts')">
+    <div class="tab-dot" id="alertDot"></div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Alerts
+  </button>
+  <button class="tab-btn" id="tab-amazon" onclick="go('amazon')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    Amazon
+  </button>
+  <button class="tab-btn" id="tab-chat" onclick="go('chat')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Ask
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const DB='ledger_v3', FBR='ledger_fbr_v2';
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLS=['#FFB612','#4a9eff','#3ecf8e','#f97316','#a78bfa','#f43f5e','#06b6d4','#eab308','#8b5cf6','#10b981','#fb923c','#60a5fa'];
+const IMP_CATS=new Set(['Health & Beauty','Toys & Games','Books','Electronics Accessories','Home','Kitchen','Sports','Pet Supplies','Clothing','Beauty','Grocery & Gourmet Food']);
+
+let txns=[],amzItems=[],accounts=[],goals=[];
+let history=[],amzF='all',chatReady=false;
+
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(DB)||'{}');txns=d.txns||[];amzItems=d.amzItems||[];accounts=d.accounts||[];return txns.length>0||amzItems.length>0;}catch(e){return false;}
+}
+function loadGoals(){
+  try{const d=JSON.parse(localStorage.getItem(FBR)||'{}');goals=d.goals||[];}catch(e){}
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+const fmt=n=>'$'+Math.abs(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtK=n=>{const a=Math.abs(n||0);return a>=1e6?'$'+(a/1e6).toFixed(1)+'M':a>=1e3?'$'+(a/1e3).toFixed(1)+'K':'$'+a.toFixed(0);};
+const nowMo=()=>{const n=new Date();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;};
+const prevMo=()=>{const n=new Date(),m=n.getMonth()===0?12:n.getMonth(),y=n.getMonth()===0?n.getFullYear()-1:n.getFullYear();return`${y}-${String(m).padStart(2,'0')}`;};
+const cats3m=()=>{const n=new Date(),s=new Date(n.getFullYear(),n.getMonth()-2,1),c={};txns.filter(t=>new Date(t.date)>=s&&t.amount<0).forEach(t=>c[t.category]=(c[t.category]||0)+Math.abs(t.amount));return Object.entries(c).sort((a,b)=>b[1]-a[1]);};
+const impulse=i=>{let s=0;if(IMP_CATS.has(i.category))s+=30;if(i.total<15)s+=25;else if(i.total<30)s+=15;if(i.qty>=3&&i.total<50)s+=15;return Math.min(s,100);};
+const catEmoji=c=>({'Books':'📚','Electronics Accessories':'🔌','Home & Kitchen':'🏠','Health & Beauty':'💊','Pet Supplies':'🐾','Clothing':'👕','Toys & Games':'🎮','Office Products':'📎','Grocery & Gourmet Food':'🛒','Sports & Outdoors':'⚽'}[c]||'📦');
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+let active='snapshot';
+function go(tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  active=tab;
+  if(tab==='snapshot')renderSnapshot();
+  if(tab==='alerts')renderAlerts();
+  if(tab==='amazon')renderAmazon();
+  if(tab==='chat'&&!chatReady){chatReady=true;sendWelcome();}
+}
+
+// ═══════════════════════════════════════
+// SNAPSHOT
+// ═══════════════════════════════════════
+function renderSnapshot(){
+  const el=document.getElementById('snap-out');
+  if(!txns.length){el.innerHTML=emptyHTML('snapshot');return;}
+  const n=new Date(),cm=nowMo(),lm=prevMo();
+  const cmE=txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI=txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const lmE=txns.filter(t=>t.date.startsWith(lm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const net=cmI-cmE;
+  const sr=cmI>0?(net/cmI*100):0;
+  const pct=lmE>0?((cmE-lmE)/lmE*100):0;
+  const mo=MONTHS[n.getMonth()]+' '+n.getFullYear();
+  // 12mo
+  const y1=new Date(n.getFullYear()-1,n.getMonth()+1,1);
+  const yt=txns.filter(t=>new Date(t.date)>=y1);
+  const yi=yt.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const ye=Math.abs(yt.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+  const yr=yi>0?((yi-ye)/yi*100):0;
+  // cats
+  const cd=cats3m().slice(0,5),mx=cd[0]?cd[0][1]:1;
+  // goals
+  loadGoals();
+  const goalsHtml=goals.length?`
+    <div class="sec-lbl">Goal Progress</div>
+    <div class="rings-row">
+      ${goals.slice(0,5).map(g=>{
+        const p=Math.min(100,(g.current/g.target)*100);
+        const circ=2*Math.PI*24,off=circ*(1-p/100);
+        const col=p>=80?'#3ecf8e':p>=40?'#FFB612':'#4a9eff';
+        return`<div class="ring-card">
+          <svg class="ring-svg" viewBox="0 0 60 60">
+            <circle class="ring-bg" cx="30" cy="30" r="24"/>
+            <circle class="ring-fill" cx="30" cy="30" r="24" stroke="${col}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
+            <text class="ring-pct" x="30" y="35" text-anchor="middle">${p.toFixed(0)}%</text>
+          </svg>
+          <div class="ring-name">${g.name.replace(/College Fund — /,'').replace(/Home Improvement/,'Home').replace(/Emergency/,'Emergency')}</div>
+        </div>`;
+      }).join('')}
+    </div>`:'';
+
+  el.innerHTML=`
+    <div class="snap-hero">
+      <div class="hero-label">${mo} · Month to Date</div>
+      <div class="hero-net${net<0?' neg':''}">${net>=0?'+':''}${fmtK(net)}</div>
+      <div class="hero-sub">net saved this month</div>
+      <div class="hero-chips">
+        <div class="chip chip-gold">💰 ${fmtK(cmI)} in</div>
+        <div class="chip ${cmE>cmI?'chip-red':'chip-grn'}">📤 ${fmtK(cmE)} out</div>
+        <div class="chip ${sr>=20?'chip-grn':'chip-red'}">${sr.toFixed(0)}% saved</div>
+        <div class="chip ${pct>10?'chip-red':pct<-5?'chip-grn':'chip-gold'}">${pct>0?'↑':'↓'}${Math.abs(pct).toFixed(0)}% vs last mo</div>
+      </div>
+      <!-- Pittsburgh bridge watermark -->
+      <svg class="bridge-wm" viewBox="0 0 180 50" fill="none">
+        <line x1="0" y1="45" x2="180" y2="45" stroke="#FFB612" stroke-width="2"/>
+        <line x1="10" y1="37" x2="170" y2="37" stroke="#FFB612" stroke-width="1.5"/>
+        <rect x="42" y="8" width="6" height="29" fill="#FFB612"/>
+        <rect x="132" y="8" width="6" height="29" fill="#FFB612"/>
+        <line x1="45" y1="8" x2="10" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="30" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="60" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="75" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="170" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="150" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="120" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="105" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <path d="M45 8 Q90 1 135 8" stroke="#FFB612" stroke-width=".8" fill="none"/>
+      </svg>
+    </div>
+
+    <div class="sec-lbl">Key Numbers</div>
+    <div class="hscroll">
+      <div class="kpi-card gborder">
+        <div class="kpi-lbl">Spending MTD</div>
+        <div class="kpi-val">${fmtK(cmE)}</div>
+        <div class="kpi-delta ${pct>5?'up':pct<-5?'dn':''}">${pct>0?'↑':'↓'} ${Math.abs(pct).toFixed(0)}% vs last month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Savings Rate</div>
+        <div class="kpi-val">${sr.toFixed(0)}%</div>
+        <div class="kpi-sub">Target: 20%</div>
+        <div class="kpi-delta ${sr>=20?'pos':'neg-c'}">${sr>=20?'✓ On track':'Below target'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">12-Mo Rate</div>
+        <div class="kpi-val">${yr.toFixed(0)}%</div>
+        <div class="kpi-sub">Annual avg</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Accounts</div>
+        <div class="kpi-val">${accounts.length}</div>
+        <div class="kpi-sub">${txns.length.toLocaleString()} transactions</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Where the Money Went — This Month</div>
+    <div style="background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      ${cd.map(([cat,amt],i)=>`
+        <div class="cat-row">
+          <div class="cat-dot" style="background:${COLS[i]};"></div>
+          <div class="cat-info"><div class="cat-name">${cat}</div><div class="cat-pct">${((amt/cmE)*100).toFixed(0)}% of spending</div></div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(amt/mx*100)}%;background:${COLS[i]};"></div></div>
+          <div class="cat-amt">${fmtK(amt)}</div>
+        </div>`).join('')}
+    </div>
+
+    ${goalsHtml}
+
+    <div class="data-note"><strong>Keep this current:</strong> import files in the desktop app on the 1st of each month and this view auto-updates.</div>
+    <div style="height:24px;"></div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════
+function buildAlerts(){
+  const alerts=[]; if(!txns.length)return alerts;
+  const n=new Date();
+  // Trend 3M
+  const c3=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-2,1)&&t.amount<0;});
+  const p3=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-5,1)&&d<new Date(n.getFullYear(),n.getMonth()-2,1)&&t.amount<0;});
+  const cc={},pc={};
+  c3.forEach(t=>cc[t.category]=(cc[t.category]||0)+Math.abs(t.amount));
+  p3.forEach(t=>pc[t.category]=(pc[t.category]||0)+Math.abs(t.amount));
+  Object.entries(cc).forEach(([cat,v])=>{const p=pc[cat]||0;if(p<50)return;const pct=((v-p)/p)*100;if(pct>25)alerts.push({sev:pct>50?'danger':'warn',icon:'📈',title:`${cat} up ${pct.toFixed(0)}% vs last quarter`,body:`Spent ${fmt(v)} vs ${fmt(p)} previously — ${fmt(v-p)} more.`,action:`Review ${cat} in the desktop app.`});});
+  // Budget drift
+  const day=n.getDate(),dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate(),pf=dim/day;
+  const l12=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear()-1,n.getMonth()+1,1)&&d<new Date(n.getFullYear(),n.getMonth(),1)&&t.amount<0;});
+  const nm=([...new Set(l12.map(t=>t.date.slice(0,7)))].length)||12;
+  const av={};l12.forEach(t=>av[t.category]=(av[t.category]||0)+Math.abs(t.amount));
+  Object.keys(av).forEach(c=>av[c]/=nm);
+  const mtd={};txns.filter(t=>t.date.startsWith(nowMo())&&t.amount<0).forEach(t=>mtd[t.category]=(mtd[t.category]||0)+Math.abs(t.amount));
+  Object.entries(mtd).forEach(([c,spent])=>{const avg=av[c]||0;if(avg<20)return;const proj=spent*pf,drift=((proj-avg)/avg)*100;if(drift>35)alerts.push({sev:drift>65?'danger':'warn',icon:'💸',title:`${c} on pace to overshoot ${drift.toFixed(0)}%`,body:`Spent ${fmt(spent)} MTD → projecting ${fmt(proj)} vs ${fmt(avg)} average.`,action:`${dim-day} days left. Slow down on ${c}.`});});
+  // Anomaly
+  const exp=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-5,1)&&t.amount<0;});
+  const amts=exp.map(t=>Math.abs(t.amount));
+  if(amts.length>5){const mean=amts.reduce((a,b)=>a+b,0)/amts.length,std=Math.sqrt(amts.reduce((s,a)=>s+(a-mean)**2,0)/amts.length);const out=exp.filter(t=>(Math.abs(t.amount)-mean)/std>=3).slice(0,3);if(out.length)alerts.push({sev:'info',icon:'🔍',title:`${out.length} unusually large transaction${out.length>1?'s':''}`,body:out.map(t=>`${t.payee}: ${fmt(Math.abs(t.amount))}`).join(' · '),action:'Verify these — look for errors or fraud.'});}
+  // Seasonal
+  const bym={};txns.filter(t=>t.amount<0).forEach(t=>{const yr=t.date.slice(0,4),mo=parseInt(t.date.slice(5,7))-1;if(!bym[yr])bym[yr]=Array(12).fill(0);bym[yr][mo]+=Math.abs(t.amount);});
+  const yrs=Object.keys(bym);
+  if(yrs.length>=2){const avg=Array(12).fill(0),cnt=Array(12).fill(0);yrs.forEach(y=>bym[y].forEach((v,m)=>{if(v>0){avg[m]+=v;cnt[m]++;}}));const base=avg.reduce((a,b)=>a+b,0)/12,nm2=(n.getMonth()+1)%12;const nxa=cnt[nm2]?avg[nm2]/cnt[nm2]:0;if(nxa>base*1.2)alerts.push({sev:'info',icon:'📅',title:`${MONTHS[nm2]} is historically ${((nxa/base-1)*100).toFixed(0)}% above normal`,body:`You typically spend ${fmt(nxa)} in ${MONTHS[nm2]} vs ${fmt(base)} baseline.`,action:`Set aside an extra ${fmt(nxa-base)} this month.`});}
+  // Amazon impulse
+  if(amzItems.length){const rec=amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-1,1));const hi=rec.filter(i=>impulse(i)>=60);if(hi.length>=3)alerts.push({sev:'warn',icon:'📦',title:`${hi.length} impulse-flagged Amazon purchases`,body:`Total ${fmt(hi.reduce((s,i)=>s+i.total,0))} — e.g. "${(hi[0].title||'').slice(0,36)}…"`,action:'Consider a 24-hour cart rule for small orders.'});}
+  return alerts;
+}
+
+function renderAlerts(){
+  const alerts=buildAlerts();
+  document.getElementById('alerts-sub').textContent=`${alerts.length} active flag${alerts.length!==1?'s':''} · updated on import`;
+  const dot=document.getElementById('alertDot');
+  dot.className='tab-dot'+(alerts.some(a=>a.sev==='danger')?' show':'');
+  const el=document.getElementById('alerts-out');
+  if(!txns.length){el.innerHTML=emptyHTML('alerts');return;}
+  if(!alerts.length){el.innerHTML=`<div class="empty-wrap"><div class="empty-icon">🛡️</div><div class="empty-title">All clear</div><div class="empty-sub">No intelligence flags. Your spending looks stable.</div></div>`;return;}
+  const cls=s=>s==='danger'?'a-danger':s==='warn'?'a-warn':s==='info'?'a-info':'a-good';
+  el.innerHTML=alerts.map(a=>`<div class="alert-card ${cls(a.sev)}"><div class="alert-emoji">${a.icon}</div><div class="alert-body-wrap"><div class="alert-title">${a.title}</div><div class="alert-body">${a.body}</div><div class="alert-action">→ ${a.action}</div></div></div>`).join('')+'<div style="height:20px;"></div>';
+}
+
+// ═══════════════════════════════════════
+// AMAZON
+// ═══════════════════════════════════════
+function renderAmazon(){
+  const el=document.getElementById('amz-out');
+  if(!amzItems.length){el.innerHTML=emptyHTML('amazon');return;}
+  const n=new Date();
+  const total=amzItems.reduce((s,i)=>s+i.total,0);
+  const orders=[...new Set(amzItems.map(i=>i.orderId).filter(Boolean))];
+  const rec=amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-2,1));
+  const recT=rec.reduce((s,i)=>s+i.total,0);
+  const mos=[...new Set(amzItems.map(i=>i.date.slice(0,7)))].length||1;
+  let items=[...amzItems].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(amzF==='impulse')items=items.filter(i=>impulse(i)>=60);
+  else if(amzF==='big')items=items.filter(i=>i.total>=50);
+  else if(amzF==='recent')items=items.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-1,1));
+  items=items.slice(0,40);
+
+  el.innerHTML=`
+    <div class="amz-hero">
+      <div class="amz-eyebrow">Amazon Intelligence</div>
+      <div class="amz-title">📦 Amazon<span>Watchlist</span></div>
+      <div class="amz-big">${fmtK(total)}</div>
+      <div class="amz-big-sub">total spend · ${amzItems.length.toLocaleString()} items · ${orders.length||'?'} orders</div>
+    </div>
+    <div class="amz-stats">
+      <div class="amz-stat"><div class="amz-stat-lbl">Last 3 months</div><div class="amz-stat-val">${fmtK(recT)}</div></div>
+      <div class="amz-stat"><div class="amz-stat-lbl">Monthly avg</div><div class="amz-stat-val">${fmtK(total/mos)}</div></div>
+      <div class="amz-stat"><div class="amz-stat-lbl">Impulse flagged</div><div class="amz-stat-val" style="color:var(--gold);">${amzItems.filter(i=>impulse(i)>=60).length}</div></div>
+    </div>
+    <div class="amz-filters">
+      <div class="f-pill${amzF==='all'?' active':''}" onclick="setAF('all',this)">All Items</div>
+      <div class="f-pill${amzF==='recent'?' active':''}" onclick="setAF('recent',this)">Recent</div>
+      <div class="f-pill${amzF==='impulse'?' active':''}" onclick="setAF('impulse',this)">🔴 Impulse</div>
+      <div class="f-pill${amzF==='big'?' active':''}" onclick="setAF('big',this)">💰 $50+</div>
+    </div>
+    <div style="background:var(--card);border-top:1px solid var(--border);">
+      ${items.map(i=>{const sc=impulse(i);return`<div class="amz-item"><div class="amz-icon">${catEmoji(i.category)}</div><div class="amz-info"><div class="amz-item-title">${i.title}</div><div class="amz-meta"><span class="amz-date">${i.date}</span><span class="amz-cat">${i.category}</span>${sc>=60?`<span class="imp-hi">🔴 Impulse</span>`:sc>=30?`<span class="imp-md">🟡 Watch</span>`:''}</div></div><div class="amz-price">${fmt(i.total)}</div></div>`;}).join('')}
+    </div>
+    <div style="height:20px;"></div>
+  `;
+}
+
+function setAF(f,btn){amzF=f;renderAmazon();}
+
+// ═══════════════════════════════════════
+// CHAT — Claude AI
+// ═══════════════════════════════════════
+function buildCtx(){
+  if(!txns.length)return'No financial data imported yet. The user needs to import data in the desktop app first.';
+  const n=new Date(),cm=nowMo(),lm=prevMo();
+  const cmE=txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI=txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const lmE=txns.filter(t=>t.date.startsWith(lm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const net=cmI-cmE,sr=cmI>0?(net/cmI*100):0;
+  const y1=new Date(n.getFullYear()-1,n.getMonth()+1,1);
+  const yt=txns.filter(t=>new Date(t.date)>=y1);
+  const yi=yt.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const ye=Math.abs(yt.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+  const catStr=cats3m().slice(0,8).map(([c,v])=>`${c}: ${fmtK(v)}`).join(', ');
+  const alerts=buildAlerts();
+  loadGoals();
+  const goalStr=goals.length?goals.map(g=>`${g.name}: ${fmt(g.current)}/${fmt(g.target)} (${((g.current/g.target)*100).toFixed(0)}%)`).join(', '):'No goals configured';
+  const amzT=amzItems.reduce((s,i)=>s+i.total,0);
+  const amzRec=amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-2,1)).reduce((s,i)=>s+i.total,0);
+  const dates=txns.map(t=>t.date).sort();
+  return`PITTSBURGH FAMILY FINANCES
+Data: ${dates[0]} to ${dates[dates.length-1]} | Accounts: ${accounts.length} | Transactions: ${txns.length.toLocaleString()}
+
+CURRENT MONTH (${MONTHS[n.getMonth()]} ${n.getFullYear()}):
+Income MTD: ${fmt(cmI)} | Expenses MTD: ${fmt(cmE)} | Net: ${fmt(net)} | Savings rate: ${sr.toFixed(1)}%
+vs last month expenses: ${lmE>0?((cmE-lmE)/lmE*100).toFixed(0)+'%':'N/A'}
+
+12-MONTH: Income ${fmtK(yi)} | Expenses ${fmtK(ye)} | Net ${fmtK(yi-ye)} | Rate ${yi>0?((yi-ye)/yi*100).toFixed(1):0}%
+
+TOP CATEGORIES (3 months): ${catStr}
+
+ALERTS: ${alerts.length?alerts.map(a=>a.title+': '+a.body).join(' | '):'None'}
+
+GOALS: ${goalStr}
+
+AMAZON: Total ${fmtK(amzT)} | Last 3mo ${fmtK(amzRec)} | Impulse flagged ${amzItems.filter(i=>impulse(i)>=60).length} items`;
+}
+
+const SYS=`You are Ledger, a warm and sharp personal finance assistant for a Pittsburgh family. You have their complete financial data. Speak in clear plain English — no jargon, no bullet points. Write in natural paragraphs, like a brilliant friend who knows finance.
+
+When things look good, say so. When something needs attention, be honest but constructive. Always use specific numbers from the data. End with one clear recommended action when relevant.
+
+You're speaking to Chris (healthcare strategy director) and/or his wife (Physician Assistant — smart but not finance-trained). Keep it conversational and human. Under 180 words unless genuinely needed. No markdown headers.`;
+
+async function callClaude(msg){
+  const ctx=buildCtx();
+  const msgs=[
+    {role:'user',content:`Here is my financial data:\n\n${ctx}`},
+    {role:'assistant',content:'Got it — I have a clear picture of your finances. What would you like to know?'},
+    ...history,
+    {role:'user',content:msg}
+  ];
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:SYS,messages:msgs})});
+  if(!r.ok)throw new Error('API '+r.status);
+  const d=await r.json();
+  return d.content?.[0]?.text||'Sorry, I had trouble responding.';
+}
+
+function addBubble(text,role){
+  const msgs=document.getElementById('chatMsgs');
+  const div=document.createElement('div');
+  div.className='bubble '+(role==='user'?'bubble-u':'bubble-a');
+  if(role==='assistant'){div.innerHTML=`<div class="ai-lbl"><div class="ai-star"></div>Ledger</div>${text.replace(/\n/g,'<br>')}`;}
+  else{div.textContent=text;}
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;return div;
+}
+function addTyping(){const m=document.getElementById('chatMsgs');const d=document.createElement('div');d.className='typing-wrap';d.id='typ';d.innerHTML='<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function rmTyping(){const t=document.getElementById('typ');if(t)t.remove();}
+
+function sendWelcome(){
+  if(!txns.length){addBubble('Hi! I\'m Ledger, your family finance assistant.\n\nTo get started, open the desktop app in your browser on a computer, import your Quicken and Amazon files, then come back here to chat. Your data will be available automatically — we share the same storage.','assistant');return;}
+  const n=new Date(),cm=nowMo();
+  const cmE=txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI=txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const net=cmI-cmE,sr=cmI>0?(net/cmI*100):0;
+  addBubble(`Hey! Quick read on ${MONTHS[n.getMonth()]}.\n\nSo far this month you've brought in ${fmt(cmI)} and spent ${fmt(cmE)}, putting you ${net>=0?'ahead':'behind'} by ${fmt(Math.abs(net))}. Savings rate is ${sr.toFixed(0)}% — ${sr>=20?'above our 20% target, great':'below the 20% target, worth a look'}.\n\nWhat do you want to dig into?`,'assistant');
+}
+
+async function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';inp.style.height='';
+  addBubble(msg,'user');
+  history.push({role:'user',content:msg});
+  addTyping();
+  document.getElementById('chatStatus').textContent='Thinking…';
+  try{
+    const rep=await callClaude(msg);
+    rmTyping();addBubble(rep,'assistant');
+    history.push({role:'assistant',content:rep});
+    if(history.length>16)history=history.slice(-16);
+  }catch(e){
+    rmTyping();addBubble('Couldn\'t connect right now. Check your connection and try again.','assistant');
+  }
+  document.getElementById('chatStatus').textContent='Ready · powered by Claude';
+}
+function sendQ(el){document.getElementById('chatInput').value=el.textContent;sendChat();}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function autoSize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+
+// ═══════════════════════════════════════
+// EMPTY STATE
+// ═══════════════════════════════════════
+function emptyHTML(tab){
+  const icons={snapshot:'🗂️',alerts:'⚡',amazon:'📦'};
+  return`<div class="empty-wrap"><div class="empty-icon">${icons[tab]||'🗂️'}</div><div class="empty-title">No data yet</div><div class="empty-sub">Open the <strong style="color:var(--gold);">Ledger desktop app</strong> in your browser, import your files, and this view populates automatically.</div><div class="data-note" style="margin:20px 0 0;text-align:left;"><span class="pgh-star"></span><strong>Quick start:</strong> Go to your GitHub Pages URL on a laptop, click "Load Demo" to see everything in action.</div></div>`;
+}
+
+// ═══════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  load();loadGoals();
+  renderSnapshot();
+  const alerts=buildAlerts();
+  document.getElementById('alertDot').className='tab-dot'+(alerts.some(a=>a.sev==='danger')?' show':'');
+});
+</script>
+</body>
+</html>
