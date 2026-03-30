@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Forge Pulse">
+<meta name="theme-color" content="#0D0D0D">
+<title>Forge Pulse · $id · Pittsburgh</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   FORGE PULSE — Mobile Design System v2.0
+   Same soul as Forge desktop · Optimized for touch
+═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --void:      #080808;
+  --base:      #0E0E0E;
+  --lift:      #151515;
+  --float:     #1C1C1C;
+  --hover:     #232323;
+  --line:      #2A2A2A;
+  --line2:     #333333;
+  --ink:       #F2EFE9;
+  --ink2:      #D0CBC4;
+  --ink3:      #9E9890;
+  --ink4:      #6E6A65;
+  --gold:      #F5A800;
+  --gold-lt:   #FFB612;
+  --gold-dim:  rgba(245,168,0,.10);
+  --gold-line: rgba(245,168,0,.18);
+  --positive:  #2DD4BF;
+  --negative:  #F87171;
+  --caution:   #FBBF24;
+  --river:     #60A5FA;
+  --purple:    #A78BFA;
+  --font-d:    'Cormorant Garamond', Georgia, serif;
+  --font-ui:   'DM Sans', system-ui, sans-serif;
+  --font-m:    'Fira Code', monospace;
+  --ease:      cubic-bezier(0.16, 1, 0.3, 1);
+  --r-sm:      4px; --r: 8px; --r-lg: 14px;
+  --accent: var(--gold); --accent2: var(--river); --accent3: var(--positive); --accent4: var(--gold); --slate: var(--ink3); --cream: var(--lift);
+  --safe-top:  env(safe-area-inset-top, 44px);
+  --safe-bot:  env(safe-area-inset-bottom, 34px);
+  --tab-h:     62px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-ui);
+  background: var(--base);
+  color: var(--ink);
+  height: 100%; overflow: hidden;
+  display: flex; flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(var(--tab-h) + var(--safe-bot));
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+}
+
+.status-fill { position: fixed; top: 0; left: 0; right: 0; height: var(--safe-top); background: var(--void); z-index: 300; }
+.shell { flex: 1; position: relative; overflow: hidden; }
+.page { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: none; background: var(--base); }
+.page.active { display: block; animation: pgIn .22s var(--ease); }
+@keyframes pgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── TAB BAR ── */
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(var(--tab-h) + var(--safe-bot));
+  padding-bottom: var(--safe-bot);
+  background: rgba(8,8,8,.96);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-top: 1px solid var(--line);
+  display: flex; align-items: flex-start;
+  justify-content: space-around;
+  padding-top: 8px; z-index: 200;
+}
+/* Gold rule on tab bar */
+.tab-bar::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,var(--gold-line),transparent); }
+.tab-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 14px; border: none; background: transparent;
+  color: var(--ink3); cursor: pointer;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500;
+  transition: color .2s var(--ease); position: relative; min-width: 68px;
+  letter-spacing: 0.03em;
+}
+.tab-btn.active { color: var(--gold); }
+.tab-btn.active svg { filter: drop-shadow(0 0 6px rgba(245,168,0,.35)); }
+.tab-dot { position: absolute; top: 4px; right: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--negative); border: 1.5px solid var(--base); display: none; }
+.tab-dot.show { display: block; }
+
+/* ── PAGE HEADERS ── */
+.pg-head { background: rgba(8,8,8,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 18px 22px 14px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--line); }
+.pg-head::after { content:''; position:absolute; bottom:-1px; left:22px; right:22px; height:1px; background:linear-gradient(90deg,transparent,var(--gold-line),transparent); }
+.pg-title { font-family: var(--font-d); font-size: 30px; font-weight: 600; color: var(--ink); line-height: 1; }
+.pg-sub   { font-size: 12px; color: var(--ink3); margin-top: 4px; font-family: var(--font-m); letter-spacing: 0.06em; }
+
+/* ── SNAPSHOT HERO ── */
+.snap-hero { background: linear-gradient(160deg, #0F0E09 0%, #0C0B07 60%, var(--void) 100%); padding: 28px 22px 30px; position: relative; overflow: hidden; }
+.snap-hero::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,transparent,transparent 28px,rgba(245,168,0,.01) 28px,rgba(245,168,0,.01) 29px),repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(245,168,0,.01) 28px,rgba(245,168,0,.01) 29px); }
+.snap-hero::after  { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold-line),transparent); }
+.hero-eyebrow { font-family: var(--font-m); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink4); margin-bottom: 10px; position: relative; z-index: 1; }
+.hero-net { font-family: var(--font-d); font-size: 64px; font-weight: 700; line-height: 1; color: var(--ink); margin-bottom: 6px; position: relative; z-index: 1; letter-spacing: -0.01em; }
+.hero-net.neg { color: var(--negative); }
+.hero-sub { font-size: 13px; color: var(--ink4); position: relative; z-index: 1; }
+.hero-chips { display: flex; gap: 9px; margin-top: 20px; flex-wrap: wrap; position: relative; z-index: 1; }
+.chip { padding: 6px 14px; border-radius: var(--r-sm); font-size: 12px; font-weight: 500; border: 1px solid; letter-spacing: 0.01em; }
+.chip-gold  { background: var(--gold-dim);              color: var(--gold);     border-color: var(--gold-line); }
+.chip-grn   { background: rgba(45,212,191,.08);         color: var(--positive); border-color: rgba(45,212,191,.2); }
+.chip-red   { background: rgba(248,113,113,.08);        color: var(--negative); border-color: rgba(248,113,113,.2); }
+.chip-blu   { background: rgba(96,165,250,.08);         color: var(--river);    border-color: rgba(96,165,250,.2); }
+.chip-muted { background: rgba(255,255,255,.04);        color: var(--ink4);     border-color: var(--line); }
+.bridge-wm  { position: absolute; bottom: 0; right: -8px; width: 200px; opacity: .045; pointer-events: none; z-index: 0; }
+
+/* ── SECTION LABEL ── */
+.sec-lbl { font-family: var(--font-m); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink4); padding: 22px 22px 9px; }
+
+/* ── HORIZONTAL SCROLL ── */
+.hscroll { display: flex; gap: 14px; padding: 0 22px 4px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.hscroll::-webkit-scrollbar { display: none; }
+
+/* ── KPI CARDS ── */
+.kpi-card { flex-shrink: 0; width: 156px; scroll-snap-align: start; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 18px 20px; }
+.kpi-card.gborder { border-color: var(--gold-line); }
+.kpi-lbl   { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink4); margin-bottom: 10px; }
+.kpi-val   { font-family: var(--font-d); font-size: 28px; color: var(--ink); line-height: 1; margin-bottom: 5px; font-weight: 600; }
+.kpi-sub   { font-size: 11.5px; color: var(--ink4); }
+.kpi-delta { font-size: 12px; font-weight: 500; margin-top: 5px; }
+.up { color: var(--negative); } .dn { color: var(--positive); } .pos { color: var(--positive); } .neg-c { color: var(--negative); }
+
+/* ── GOAL RINGS ── */
+.rings-row { display: flex; gap: 12px; padding: 0 22px; overflow-x: auto; scrollbar-width: none; }
+.rings-row::-webkit-scrollbar { display: none; }
+.ring-card  { flex-shrink: 0; width: 112px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 10px; text-align: center; }
+.ring-svg   { width: 64px; height: 64px; margin: 0 auto 9px; }
+.ring-bg    { fill: none; stroke: #1a1a1a; stroke-width: 7; }
+.ring-fill  { fill: none; stroke-width: 7; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s var(--ease); }
+.ring-pct   { font-family: var(--font-d); font-size: 14px; fill: var(--ink); font-weight: 600; }
+.ring-name  { font-size: 10.5px; font-weight: 500; color: var(--ink4); line-height: 1.4; margin-top: 2px; }
+
+/* ── CATEGORY ROWS ── */
+.cat-row  { display: flex; align-items: center; padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,.04); gap: 14px; }
+.cat-row:last-child { border-bottom: none; }
+.cat-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cat-info { flex: 1; }
+.cat-name { font-weight: 500; font-size: 14px; color: var(--ink); }
+.cat-pct  { font-size: 11px; color: var(--ink4); margin-top: 2px; }
+.cat-bar-bg   { height: 3px; background: var(--line2); border-radius: 2px; overflow: hidden; flex: 1; max-width: 80px; }
+.cat-bar-fill { height: 100%; border-radius: 2px; transition: width .6s var(--ease); }
+.cat-amt  { font-family: var(--font-m); font-size: 13px; font-weight: 500; color: var(--ink); text-align: right; flex-shrink: 0; min-width: 72px; }
+
+/* ── LIFE-STAGE BANNER ── */
+.life-stage-banner { margin: 4px 16px 8px; padding: 12px 16px; background: var(--gold-dim); border: 1px solid var(--gold-line); border-radius: var(--r-lg); display: flex; align-items: center; gap: 12px; }
+.ls-icon { font-size: 20px; flex-shrink: 0; }
+.ls-text { font-size: 12px; color: var(--ink3); line-height: 1.55; }
+.ls-text strong { color: var(--gold); font-weight: 600; }
+
+/* ── ALERTS ── */
+.alert-card { margin: 0 16px 12px; border-radius: var(--r-lg); padding: 18px 20px; border: 1px solid; display: flex; gap: 14px; }
+.a-danger { background: rgba(248,113,113,.05); border-color: rgba(248,113,113,.18); }
+.a-warn   { background: rgba(245,168,0,.05);   border-color: rgba(245,168,0,.18); }
+.a-info   { background: rgba(96,165,250,.05);  border-color: rgba(96,165,250,.18); }
+.a-good   { background: rgba(45,212,191,.05);  border-color: rgba(45,212,191,.18); }
+.a-ls     { background: rgba(167,139,250,.05); border-color: rgba(167,139,250,.18); }
+.alert-emoji   { font-size: 22px; flex-shrink: 0; line-height: 1.2; }
+.alert-content { flex: 1; }
+.alert-title   { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 6px; line-height: 1.35; }
+.alert-body    { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+.alert-action  { margin-top: 9px; font-size: 12px; font-weight: 500; color: var(--river); }
+
+/* ── AMAZON ── */
+.amz-hero { background: linear-gradient(160deg, #100E00, var(--void)); padding: 24px 22px 22px; border-bottom: 1px solid var(--line); }
+.amz-eyebrow { font-family: var(--font-m); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink4); margin-bottom: 6px; }
+.amz-title { font-family: var(--font-d); font-size: 30px; font-weight: 600; color: var(--ink); }
+.amz-title span { color: #FF9900; }
+.amz-big { font-family: var(--font-d); font-size: 44px; font-weight: 700; color: #FF9900; margin: 8px 0 4px; letter-spacing: -0.01em; }
+.amz-big-sub { font-size: 12px; color: var(--ink4); }
+.amz-stats { display: flex; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--line); }
+.amz-stat { flex: 1; background: var(--float); border-radius: var(--r-lg); padding: 13px 14px; border: 1px solid var(--line); }
+.amz-stat-lbl { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink4); margin-bottom: 5px; }
+.amz-stat-val { font-family: var(--font-d); font-size: 21px; font-weight: 600; color: var(--ink); }
+.amz-filters  { display: flex; gap: 9px; padding: 13px 22px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+.amz-filters::-webkit-scrollbar { display: none; }
+.f-pill { flex-shrink: 0; padding: 7px 15px; border-radius: var(--r-sm); font-size: 12px; font-weight: 500; border: 1px solid var(--line2); background: var(--float); color: var(--ink4); cursor: pointer; white-space: nowrap; transition: all .15s; letter-spacing: 0.01em; }
+.f-pill.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 600; }
+.amz-item { padding: 14px 22px; border-bottom: 1px solid rgba(255,255,255,.04); display: flex; gap: 14px; }
+.amz-item:last-child { border-bottom: none; }
+.amz-icon { width: 40px; height: 40px; border-radius: var(--r-sm); background: rgba(255,153,0,.08); border: 1px solid rgba(255,153,0,.15); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.amz-info { flex: 1; }
+.amz-item-title { font-weight: 500; font-size: 13.5px; color: var(--ink); line-height: 1.4; margin-bottom: 6px; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+.amz-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.amz-date { font-size: 11px; color: var(--ink4); font-family: var(--font-m); }
+.amz-cat  { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: rgba(96,165,250,.08); color: var(--river); font-family: var(--font-m); }
+.imp-hi   { background: rgba(248,113,113,.12); color: var(--negative); font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; font-family: var(--font-m); }
+.imp-md   { background: var(--gold-dim); color: var(--gold); font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; font-family: var(--font-m); }
+.amz-price { font-family: var(--font-m); font-size: 15px; font-weight: 500; color: var(--gold); margin-left: auto; flex-shrink: 0; }
+
+/* ── CHAT ── */
+.chat-wrap { display: flex; flex-direction: column; height: 100%; }
+.chat-head { background: rgba(8,8,8,.9); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 18px 22px 14px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.chat-head::after { content:''; position:absolute; bottom:-1px; left:22px; right:22px; height:1px; background:linear-gradient(90deg,transparent,var(--gold-line),transparent); }
+.chat-title  { font-family: var(--font-d); font-size: 30px; font-weight: 600; color: var(--ink); }
+.chat-sub    { font-size: 11px; color: var(--ink4); margin-top: 3px; font-family: var(--font-m); letter-spacing: 0.05em; }
+.chat-status { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
+.status-dot  { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 7px var(--positive); }
+.status-txt  { font-size: 11px; color: var(--positive); font-weight: 500; font-family: var(--font-m); letter-spacing: 0.04em; }
+.chat-msgs   { flex: 1; overflow-y: auto; padding: 18px 18px 8px; display: flex; flex-direction: column; gap: 14px; -webkit-overflow-scrolling: touch; min-height: 0; }
+.bubble { max-width: 88%; border-radius: var(--r-lg); padding: 14px 18px; font-size: 14px; line-height: 1.65; }
+.bubble-u { align-self: flex-end; background: var(--gold); color: #000; font-weight: 600; border-bottom-right-radius: var(--r-sm); }
+.bubble-a { align-self: flex-start; background: var(--float); color: var(--ink); border-bottom-left-radius: var(--r-sm); border: 1px solid var(--line); }
+.sid-lbl { font-family: var(--font-m); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+.sid-icon { width: 12px; height: 12px; background: var(--gold); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); flex-shrink: 0; }
+.typing-wrap { align-self: flex-start; background: var(--float); padding: 15px 20px; border-radius: var(--r-lg); border-bottom-left-radius: var(--r-sm); display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); }
+.tdot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink4); animation: tb 1.2s infinite ease-in-out; }
+.tdot:nth-child(2) { animation-delay: .2s; } .tdot:nth-child(3) { animation-delay: .4s; }
+@keyframes tb { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-8px);} }
+.suggests { display: flex; gap: 9px; padding: 9px 18px 4px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+.suggests::-webkit-scrollbar { display: none; }
+.s-pill { flex-shrink: 0; padding: 9px 16px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-sm); font-size: 12.5px; font-weight: 400; color: var(--ink3); cursor: pointer; white-space: nowrap; transition: all .15s; letter-spacing: 0.01em; }
+.s-pill:active { background: var(--gold-dim); border-color: var(--gold-line); color: var(--gold); }
+.chat-input-wrap { padding: 11px 18px; background: rgba(8,8,8,.9); border-top: 1px solid var(--line); display: flex; gap: 11px; align-items: flex-end; flex-shrink: 0; }
+.chat-input { flex: 1; border: 1px solid var(--line2); border-radius: var(--r-sm); padding: 12px 16px; font-family: var(--font-ui); font-size: 15px; background: var(--float); color: var(--ink); outline: none; resize: none; max-height: 120px; line-height: 1.45; -webkit-appearance: none; transition: border-color .15s; }
+.chat-input::placeholder { color: var(--ink4); }
+.chat-input:focus { border-color: var(--gold-line); }
+.chat-send { width: 46px; height: 46px; border-radius: var(--r-sm); background: var(--gold); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .15s; }
+.chat-send:active { transform: scale(.94); background: var(--gold-lt); }
+.chat-send svg { color: #000; }
+
+/* ── EMPTY STATE ── */
+.empty-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 52px 28px; min-height: 56vh; text-align: center; }
+.empty-icon  { font-size: 52px; margin-bottom: 16px; }
+.empty-title { font-family: var(--font-d); font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 9px; }
+.empty-sub   { font-size: 13.5px; color: var(--ink4); line-height: 1.65; }
+.data-note   { margin: 16px; padding: 16px 18px; background: var(--gold-dim); border: 1px solid var(--gold-line); border-radius: var(--r-lg); font-size: 12.5px; color: var(--ink4); line-height: 1.65; }
+.data-note strong { color: var(--gold); }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: calc(var(--tab-h) + var(--safe-bot) + 14px); left: 18px; right: 18px; background: var(--gold); color: #000; padding: 14px 20px; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; text-align: center; box-shadow: 0 4px 28px rgba(245,168,0,.35); z-index: 9999; transform: translateY(20px); opacity: 0; transition: all .3s var(--ease); pointer-events: none; font-family: var(--font-ui); letter-spacing: 0.01em; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.gold-star { display: inline-block; width: 10px; height: 10px; background: var(--gold); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); vertical-align: middle; margin-right: 4px; }
+
+/* ── ANALYTICS (Pulse) ─────────────────────────── */
+.p-ana-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  margin-bottom: 12px;
+}
+.p-ana-header {
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.p-ana-pill {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(245,168,0,.1);
+  color: var(--gold);
+  border: 1px solid rgba(245,168,0,.2);
+}
+.p-ana-dim-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.p-dim-chip {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all .15s;
+}
+.p-dim-chip.active {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+.p-ana-canvas-wrap { position: relative; height: 180px; }
+.p-insight-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.p-insight {
+  flex: 1;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.p-insight-lbl { font-size: 9px; color: var(--muted); font-family: var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+.p-insight-val { font-size: 16px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+
+</style>
+</head>
+<body>
+<div class="status-fill"></div>
+<div class="shell">
+
+  <!-- ══ SNAPSHOT ══ -->
+  <div class="page active" id="pg-snapshot"><div id="snap-out"></div></div>
+
+  <!-- ══ ALERTS / FURNACE ══ -->
+  <div class="page" id="pg-alerts">
+    <div class="pg-head">
+      <div class="pg-title">The Furnace</div>
+      <div class="pg-sub" id="alerts-sub">Intelligence alerts · updated on import</div>
+    </div>
+    <div style="padding:16px 0;" id="alerts-out"></div>
+  </div>
+
+  <!-- ══ AMAZON WATCHLIST ══ -->
+  <div class="page" id="pg-amazon"><div id="amz-out"></div></div>
+
+  <!-- ══ ANALYTICS ══ -->
+  <div class="page" id="pg-analytics">
+    <div style="padding:14px 14px 100px;">
+
+      <!-- Header -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:10px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:6px;">⚾ $kenes · Analytics</div>
+        <div style="font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);">Your Numbers<span style="color:var(--gold);font-style:italic;">, Visualized</span></div>
+      </div>
+
+      <!-- Spending by Category -->
+      <div class="p-ana-card">
+        <div class="p-ana-header">
+          Spending by Category
+          <span class="p-ana-pill" id="p-cat-range-lbl">Last 3 mo</span>
+        </div>
+        <div class="p-ana-dim-row" id="p-cat-dims">
+          <div class="p-dim-chip active" onclick="setPulseRange('3m',this,'cat')">3M</div>
+          <div class="p-dim-chip" onclick="setPulseRange('6m',this,'cat')">6M</div>
+          <div class="p-dim-chip" onclick="setPulseRange('1y',this,'cat')">1Y</div>
+          <div class="p-dim-chip" onclick="setPulseRange('all',this,'cat')">All</div>
+        </div>
+        <div class="p-ana-canvas-wrap"><canvas id="p-cat-chart"></canvas></div>
+        <div class="p-insight-row" id="p-cat-insights"></div>
+      </div>
+
+      <!-- Monthly Trend -->
+      <div class="p-ana-card">
+        <div class="p-ana-header">
+          Monthly Cash Flow
+          <span class="p-ana-pill">12 months</span>
+        </div>
+        <div class="p-ana-canvas-wrap"><canvas id="p-trend-chart"></canvas></div>
+      </div>
+
+      <!-- By Purchaser -->
+      <div class="p-ana-card" id="p-purchaser-card">
+        <div class="p-ana-header">
+          Spending by Person
+          <span class="p-ana-pill" id="p-purchaser-range-lbl">Last 3 mo</span>
+        </div>
+        <div class="p-ana-dim-row" id="p-purchaser-dims">
+          <div class="p-dim-chip active" onclick="setPulseRange('3m',this,'purchaser')">3M</div>
+          <div class="p-dim-chip" onclick="setPulseRange('6m',this,'purchaser')">6M</div>
+          <div class="p-dim-chip" onclick="setPulseRange('1y',this,'purchaser')">1Y</div>
+        </div>
+        <div class="p-ana-canvas-wrap"><canvas id="p-purchaser-chart"></canvas></div>
+      </div>
+
+      <!-- Day of Week heatmap -->
+      <div class="p-ana-card">
+        <div class="p-ana-header">Avg Spending by Day of Week</div>
+        <div class="p-ana-canvas-wrap"><canvas id="p-dow-chart"></canvas></div>
+      </div>
+
+      <!-- Savings Rate Trend -->
+      <div class="p-ana-card">
+        <div class="p-ana-header">Savings Rate — Month by Month</div>
+        <div class="p-ana-canvas-wrap"><canvas id="p-savrate-chart"></canvas></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ ASK SID ══ -->
+  <div class="page" id="pg-chat">
+    <div class="chat-wrap" style="height:100%;">
+      <div class="chat-head">
+        <div class="chat-title">Ask $id</div>
+        <div class="chat-sub">Forge Intelligence · Pittsburgh</div>
+        <div class="chat-status">
+          <div class="status-dot"></div>
+          <div class="status-txt" id="chatStatus">$id · #87</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="suggests" id="suggestRow">
+        <div class="s-pill" onclick="sendQ(this)">How are we doing this month?</div>
+        <div class="s-pill" onclick="sendQ(this)">Where is the money going?</div>
+        <div class="s-pill" onclick="sendQ(this)">What should I watch out for?</div>
+        <div class="s-pill" onclick="sendQ(this)">Are we on track with our goals?</div>
+        <div class="s-pill" onclick="sendQ(this)">What did we spend on Amazon lately?</div>
+        <div class="s-pill" onclick="sendQ(this)">Give me the big picture</div>
+        <div class="s-pill" onclick="sendQ(this)">How's our savings rate trending?</div>
+        <div class="s-pill" onclick="sendQ(this)">What should we talk about at Confluence?</div>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="Ask $id anything about your finances…" onkeydown="handleKey(event)" oninput="autoSize(this)"></textarea>
+        <button class="chat-send" onclick="sendChat()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ TAB BAR ══ -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-snapshot" onclick="go('snapshot')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg>
+    The Gauge
+  </button>
+  <button class="tab-btn" id="tab-alerts" onclick="go('alerts')">
+    <div class="tab-dot" id="alertDot"></div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Furnace
+  </button>
+  <button class="tab-btn" id="tab-amazon" onclick="go('amazon')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    Detail Lens
+  </button>
+  <button class="tab-btn" id="tab-analytics" onclick="go('analytics')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+    Analytics
+  </button>
+  <button class="tab-btn" id="tab-chat" onclick="go('chat')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="8" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="16" cy="10" r="1" fill="currentColor"/></svg>
+    Ask $id
+  </button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// FORGE PULSE — DATA BRIDGE
+// Reads from same localStorage as desktop app
+// ════════════════════════════════════════════
+const DB          = 'ledger_v3';
+const FBR         = 'ledger_fbr_v2';
+const SETTINGS_DB = 'forge_settings_v1';
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLS   = ['#FFB612','#4A9EFF','#10B981','#F97316','#A78BFA','#F43F5E','#06B6D4','#EAB308','#8B5CF6','#10B981','#FB923C','#60A5FA'];
+const IMP_CATS = new Set(['Health & Beauty','Toys & Games','Books','Electronics Accessories','Home','Kitchen','Sports','Pet Supplies','Clothing','Beauty','Grocery & Gourmet Food']);
+
+let txns = [], amzItems = [], accounts = [], goals = [];
+let history = [], amzF = 'all', chatReady = false;
+
+// ── SETTINGS (reads from Forge desktop settings) ──
+const DEFAULT_FAMILY = {
+  familyName: 'Luka',
+  user1: 'Chris', user1Dob: '',
+  user2: 'Kira',  user2Dob: '',
+  kids: [
+    { name: 'Sam',     gender: 'm', dob: '', emoji: '👦' },
+    { name: 'Whitney', gender: 'f', dob: '', emoji: '👧' },
+    { name: 'Will',    gender: 'm', dob: '', emoji: '👦' },
+  ],
+  savingsTarget: 20,
+  largePurchaseThreshold: 150,
+  amzSensitivity: 3,
+  confluenceMode: true,
+  accountOwners: {},
+
+};
+
+let family = { ...DEFAULT_FAMILY };
+
+function loadFamily() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_DB);
+    if (raw) family = { ...DEFAULT_FAMILY, ...JSON.parse(raw) };
+  } catch(e) {}
+  try {
+    const d = JSON.parse(localStorage.getItem(FBR) || '{}');
+    goals = d.goals || [];
+  } catch(e) {}
+}
+
+// ── DATA LOADERS ──
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(DB) || '{}');
+    txns     = d.txns     || [];
+    amzItems = d.amzItems || [];
+    accounts = d.accounts || [];
+    return txns.length > 0 || amzItems.length > 0;
+  } catch(e) { return false; }
+}
+
+// ════════════════════════════════════════════
+// AGE & LIFE-STAGE ENGINE
+// ════════════════════════════════════════════
+function calcAge(dob) {
+  if (!dob) return null;
+  const today = new Date(), birth = new Date(dob);
+  if (isNaN(birth)) return null;
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+
+function getLifeStage(age) {
+  if (age === null) return null;
+  if (age < 5)  return { stage:'early_childhood', label:'Early Childhood',   icon:'🍼' };
+  if (age < 12) return { stage:'elementary',      label:'Elementary School', icon:'🎒' };
+  if (age < 15) return { stage:'middle_school',   label:'Middle School',     icon:'📚' };
+  if (age < 18) return { stage:'high_school',     label:'High School',       icon:'🎓' };
+  if (age < 22) return { stage:'college',         label:'College',           icon:'🏛️' };
+  return              { stage:'adult',            label:'Adult',             icon:'🧑' };
+}
+
+function getParentStage(age) {
+  if (age === null || age === undefined) return null;
+  if (age < 37) return { stage:'early_career',   label:'Early Career',   icon:'🚀' };
+  if (age < 47) return { stage:'peak_earning',   label:'Peak Earning',   icon:'📈' };
+  if (age < 58) return { stage:'pre_retirement', label:'Pre-Retirement', icon:'🏗️' };
+  if (age < 67) return { stage:'late_career',    label:'Late Career',    icon:'🏁' };
+  return              { stage:'retirement',      label:'Retirement',     icon:'🌅' };
+}
+
+function getKidsContext() {
+  return family.kids.filter(k => k.name).map(k => {
+    const age = k.dob ? calcAge(k.dob) : (parseInt(k.age) || null);
+    const ls  = getLifeStage(age);
+    return { ...k, age, ls, yearsToCollege: age !== null ? Math.max(0, 18 - age) : null };
+  });
+}
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+const fmt  = n => '$' + Math.abs(n||0).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const fmtK = n => { const a = Math.abs(n||0); return a>=1e6?'$'+(a/1e6).toFixed(1)+'M':a>=1e3?'$'+(a/1e3).toFixed(1)+'K':'$'+a.toFixed(0); };
+const nowMo  = () => { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; };
+const prevMo = () => { const n=new Date(), m=n.getMonth()===0?12:n.getMonth(), y=n.getMonth()===0?n.getFullYear()-1:n.getFullYear(); return `${y}-${String(m).padStart(2,'0')}`; };
+const cats3m = () => { const n=new Date(), s=new Date(n.getFullYear(),n.getMonth()-2,1), c={}; txns.filter(t=>new Date(t.date)>=s&&t.amount<0).forEach(t=>c[t.category]=(c[t.category]||0)+Math.abs(t.amount)); return Object.entries(c).sort((a,b)=>b[1]-a[1]); };
+const impulse = i => { let s=0; if(IMP_CATS.has(i.category))s+=30; if(i.total<15)s+=25; else if(i.total<30)s+=15; if(i.qty>=3&&i.total<50)s+=15; return Math.min(s,100); };
+const catEmoji = c => ({'Books':'📚','Electronics Accessories':'🔌','Home & Kitchen':'🏠','Health & Beauty':'💊','Pet Supplies':'🐾','Clothing':'👕','Toys & Games':'🎮','Office Products':'📎','Grocery & Gourmet Food':'🛒','Sports & Outdoors':'⚽'}[c]||'📦');
+const impBadge = sc => sc>=60?`<span class="imp-hi">🔴 Impulse</span>`:sc>=30?`<span class="imp-md">🟡 Watch</span>`:'';
+
+function toast(m) { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+let active = 'snapshot';
+function go(tab) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  active = tab;
+  if (tab==='snapshot') renderSnapshot();
+  if (tab==='alerts')   renderAlerts();
+  if (tab==='amazon')   renderAmazon();
+  if (tab==='analytics') renderPulseAnalytics();
+  if (tab==='chat' && !chatReady) { chatReady=true; sendWelcome(); }
+}
+
+// ════════════════════════════════════════════
+// SNAPSHOT — THE GAUGE
+// ════════════════════════════════════════════
+function renderSnapshot() {
+  const el = document.getElementById('snap-out');
+  if (!txns.length) { el.innerHTML = emptyHTML('snapshot'); return; }
+
+  const n=new Date(), cm=nowMo(), lm=prevMo();
+  const cmE = txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI = txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const lmE = txns.filter(t=>t.date.startsWith(lm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const net=cmI-cmE, sr=cmI>0?(net/cmI*100):0, pct=lmE>0?((cmE-lmE)/lmE*100):0;
+  const mo = MONTHS[n.getMonth()]+' '+n.getFullYear();
+
+  // 12-mo savings
+  const y1=new Date(n.getFullYear()-1,n.getMonth()+1,1);
+  const yt=txns.filter(t=>new Date(t.date)>=y1);
+  const yi=yt.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const ye=Math.abs(yt.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+  const yr=yi>0?((yi-ye)/yi*100):0;
+
+  const cd=cats3m().slice(0,5), mx=cd[0]?cd[0][1]:1;
+
+  // Life-stage banner
+  const chrisAge = calcAge(family.user1Dob);
+  const ps = getParentStage(chrisAge);
+  const kids = getKidsContext();
+  const closestCollege = kids.filter(k=>k.yearsToCollege!==null&&k.yearsToCollege<=5).sort((a,b)=>a.yearsToCollege-b.yearsToCollege)[0];
+  const lsBannerHtml = (ps || closestCollege) ? `
+    <div class="life-stage-banner">
+      <div class="ls-icon">${closestCollege?closestCollege.ls?.icon||'🎓':ps?.icon||'📈'}</div>
+      <div class="ls-text">
+        ${closestCollege
+          ? `<strong>${closestCollege.name}</strong> has ${closestCollege.yearsToCollege} year${closestCollege.yearsToCollege!==1?'s':''} until college. ${closestCollege.yearsToCollege<=2?'<strong>College window is now.</strong>':'Review 529 contributions.'}`
+          : ps ? `<strong>${family.user1}</strong> · ${ps.label} ${ps.icon} · ${ps.stage==='peak_earning'?'Maximize 401k contributions now.':'Build toward retirement.'}`:''}
+      </div>
+    </div>` : '';
+
+  // Goal rings
+  const goalsHtml = goals.length ? `
+    <div class="sec-lbl">Goal Progress</div>
+    <div class="rings-row">
+      ${goals.slice(0,5).map(g=>{
+        const p=Math.min(100,(g.current/g.target)*100);
+        const circ=2*Math.PI*24, off=circ*(1-p/100);
+        const col=p>=80?'#10B981':p>=40?'#FFB612':'#4A9EFF';
+        return `<div class="ring-card">
+          <svg class="ring-svg" viewBox="0 0 60 60">
+            <circle class="ring-bg" cx="30" cy="30" r="24"/>
+            <circle class="ring-fill" cx="30" cy="30" r="24" stroke="${col}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/>
+            <text class="ring-pct" x="30" y="35" text-anchor="middle">${p.toFixed(0)}%</text>
+          </svg>
+          <div class="ring-name">${g.name.replace(/College Fund — /,'').replace(/Home Improvement/,'Home').substring(0,14)}</div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  el.innerHTML = `
+    <div class="snap-hero">
+      <div class="hero-eyebrow">${family.familyName} Family · ${mo} <span style="font-family:monospace;font-size:8px;opacity:.35;">#87</span></div>
+      <div class="hero-net${net<0?' neg':''}">${net>=0?'+':''}${fmtK(net)}</div>
+      <div class="hero-sub">net saved this month <span style="font-size:10px;opacity:.45;">· $id reads the play</span></div>
+      <div class="hero-chips">
+        <div class="chip chip-gold">💰 ${fmtK(cmI)} in</div>
+        <div class="chip ${cmE>cmI?'chip-red':'chip-grn'}">📤 ${fmtK(cmE)} out</div>
+        <div class="chip ${sr>=(family.savingsTarget||20)?'chip-grn':'chip-red'}">${sr.toFixed(0)}% saved</div>
+        <div class="chip ${pct>10?'chip-red':pct<-5?'chip-grn':'chip-gold'}">${pct>0?'↑':'↓'}${Math.abs(pct).toFixed(0)}% vs last mo</div>
+      </div>
+      <svg class="bridge-wm" viewBox="0 0 180 50" fill="none">
+        <line x1="0" y1="46" x2="180" y2="46" stroke="#FFB612" stroke-width="2"/>
+        <line x1="10" y1="37" x2="170" y2="37" stroke="#FFB612" stroke-width="1.5"/>
+        <rect x="42" y="8" width="6" height="29" fill="#FFB612"/>
+        <rect x="132" y="8" width="6" height="29" fill="#FFB612"/>
+        <line x1="45" y1="8" x2="10" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="30" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="60" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="45" y1="8" x2="75" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="170" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="150" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="120" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <line x1="135" y1="8" x2="105" y2="37" stroke="#FFB612" stroke-width=".8"/>
+        <path d="M45 8 Q90 1 135 8" stroke="#FFB612" stroke-width=".8" fill="none"/>
+      </svg>
+    </div>
+
+    ${lsBannerHtml}
+
+    <div class="sec-lbl">Key Numbers</div>
+    <div class="hscroll">
+      <div class="kpi-card gborder">
+        <div class="kpi-lbl">Spending MTD</div>
+        <div class="kpi-val">${fmtK(cmE)}</div>
+        <div class="kpi-delta ${pct>5?'up':pct<-5?'dn':''}">${pct>0?'↑':'↓'}${Math.abs(pct).toFixed(0)}% vs last month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Savings Rate</div>
+        <div class="kpi-val">${sr.toFixed(0)}%</div>
+        <div class="kpi-sub">Target: ${family.savingsTarget||20}%</div>
+        <div class="kpi-delta ${sr>=(family.savingsTarget||20)?'pos':'neg-c'}">${sr>=(family.savingsTarget||20)?'✓ On track':'Below target'}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">12-Mo Rate</div>
+        <div class="kpi-val">${yr.toFixed(0)}%</div>
+        <div class="kpi-sub">Annual avg</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-lbl">Accounts</div>
+        <div class="kpi-val">${accounts.length}</div>
+        <div class="kpi-sub">${txns.length.toLocaleString()} transactions</div>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Where the Money Went — This Month</div>
+    <div style="background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+      ${cd.map(([cat,amt],i)=>`
+        <div class="cat-row">
+          <div class="cat-dot" style="background:${COLS[i]};"></div>
+          <div class="cat-info"><div class="cat-name">${cat}</div><div class="cat-pct">${((amt/cmE)*100).toFixed(0)}% of spending</div></div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(amt/mx*100)}%;background:${COLS[i]};"></div></div>
+          <div class="cat-amt">${fmtK(amt)}</div>
+        </div>`).join('')}
+    </div>
+
+    ${goalsHtml}
+
+    <div class="data-note">
+      <strong>The Pour:</strong> Import last 30 days from Quicken + Amazon Items CSV in the Forge desktop app and this view updates instantly.
+    </div>
+    <div style="height:24px;"></div>`;
+}
+
+// ════════════════════════════════════════════
+// THE FURNACE — ALERTS
+// ════════════════════════════════════════════
+function buildAlerts() {
+  const alerts = [];
+  if (!txns.length) return alerts;
+  const n = new Date();
+
+  // Trend 3M vs prior 3M
+  const c3=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-2,1)&&t.amount<0;});
+  const p3=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-5,1)&&d<new Date(n.getFullYear(),n.getMonth()-2,1)&&t.amount<0;});
+  const cc={},pc={};
+  c3.forEach(t=>cc[t.category]=(cc[t.category]||0)+Math.abs(t.amount));
+  p3.forEach(t=>pc[t.category]=(pc[t.category]||0)+Math.abs(t.amount));
+  Object.entries(cc).forEach(([cat,v])=>{
+    const p=pc[cat]||0; if(p<50)return;
+    const pct=((v-p)/p)*100;
+    if(pct>25) alerts.push({ sev:pct>50?'danger':'warn', icon:'📈', title:`${cat} up ${pct.toFixed(0)}% vs last quarter`, body:`Spent ${fmt(v)} recently vs ${fmt(p)} previously.`, action:`Review ${cat} in Forge.` });
+  });
+
+  // Budget drift
+  const day=n.getDate(), dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate(), pf=dim/day;
+  const l12=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear()-1,n.getMonth()+1,1)&&d<new Date(n.getFullYear(),n.getMonth(),1)&&t.amount<0;});
+  const nm=([...new Set(l12.map(t=>t.date.slice(0,7)))].length)||12;
+  const av={}; l12.forEach(t=>av[t.category]=(av[t.category]||0)+Math.abs(t.amount));
+  Object.keys(av).forEach(c=>av[c]/=nm);
+  const mtd={}; txns.filter(t=>t.date.startsWith(nowMo())&&t.amount<0).forEach(t=>mtd[t.category]=(mtd[t.category]||0)+Math.abs(t.amount));
+  Object.entries(mtd).forEach(([c,spent])=>{
+    const avg=av[c]||0; if(avg<20)return;
+    const proj=spent*pf, drift=((proj-avg)/avg)*100;
+    if(drift>35) alerts.push({ sev:drift>65?'danger':'warn', icon:'💸', title:`${c} on pace to overshoot ${drift.toFixed(0)}%`, body:`Spent ${fmt(spent)} MTD → projecting ${fmt(proj)} vs ${fmt(avg)} avg.`, action:`${dim-day} days left. Pull back on ${c}.` });
+  });
+
+  // Anomaly
+  const exp=txns.filter(t=>{const d=new Date(t.date);return d>=new Date(n.getFullYear(),n.getMonth()-5,1)&&t.amount<0;});
+  const amts=exp.map(t=>Math.abs(t.amount));
+  if(amts.length>5){
+    const mean=amts.reduce((a,b)=>a+b,0)/amts.length, std=Math.sqrt(amts.reduce((s,a)=>s+(a-mean)**2,0)/amts.length);
+    const out=exp.filter(t=>(Math.abs(t.amount)-mean)/std>=3).slice(0,3);
+    if(out.length) alerts.push({ sev:'info', icon:'🔍', title:`${out.length} unusually large transaction${out.length>1?'s':''}`, body:out.map(t=>`${t.payee}: ${fmt(Math.abs(t.amount))}`).join(' · '), action:'Verify these — check for errors or fraud.' });
+  }
+
+  // Amazon impulse
+  const amzThreshold = 80 - ((family.amzSensitivity||3) - 1) * 10;
+  if(amzItems.length){
+    const rec=amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-1,1));
+    const hi=rec.filter(i=>impulse(i)>=amzThreshold);
+    if(hi.length>=3) alerts.push({ sev:'warn', icon:'🔍', title:`${hi.length} impulse-flagged detail purchases`, body:`Total ${fmt(hi.reduce((s,i)=>s+i.total,0))} — e.g. "${(hi[0].title||'').slice(0,36)}…"`, action:'Consider a 24-hour rule for small impulse purchases.' });
+    // Per-purchaser impulse alerts
+    const purchasers=[...new Set(rec.map(i=>i.purchaser).filter(Boolean))];
+    purchasers.forEach(person=>{
+      const phi=rec.filter(i=>i.purchaser===person&&impulse(i)>=amzThreshold);
+      if(phi.length>=2){
+        const hiT=phi.reduce((s,i)=>s+i.total,0);
+        alerts.push({ sev:'warn', icon:'👤', title:`${person}: ${phi.length} impulse purchases this month`, body:`${person} has ${phi.length} flagged purchases totaling ${fmt(hiT)} — e.g. "${(phi[0].title||'').slice(0,30)}…"`, action:`Review ${person}'s recent purchases in Detail Lens.` });
+      }
+    });
+    // Predict end-of-month detail spend per person
+    const day=n.getDate(), dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
+    purchasers.forEach(person=>{
+      const mtd=rec.filter(i=>i.purchaser===person).reduce((s,i)=>s+i.total,0);
+      const hist=amzItems.filter(i=>i.purchaser===person);
+      const mos=[...new Set(hist.map(i=>i.date.slice(0,7)))].length||1;
+      const avg=hist.reduce((s,i)=>s+i.total,0)/mos;
+      const proj=day>0?mtd*(dim/day):0;
+      if(proj>avg*1.4&&avg>20){
+        alerts.push({ sev:'warn', icon:'📈', title:`${person} on pace for ${fmt(proj)} in detail this month`, body:`${fmt(mtd)} so far · projected ${fmt(proj)} · historical avg ${fmt(avg)}.`, action:`${dim-day} days left. Review in Detail Lens.` });
+      }
+    });
+  }
+
+  // ── Life-stage alerts ──
+  const kids = getKidsContext();
+  kids.forEach(k => {
+    if (k.age === null) return;
+    if (k.ls?.stage === 'high_school') {
+      alerts.push({ sev: k.yearsToCollege <= 2 ? 'danger' : 'warn', icon: '🎓', type:'ls',
+        title: `${k.name}'s college window — ${k.yearsToCollege} year${k.yearsToCollege!==1?'s':''} away`,
+        body: k.yearsToCollege <= 2 ? `Application season is here. Review ${k.name}'s 529 balance now against your target.` : `Middle of high school — this is the prime window to accelerate ${k.name}'s 529 contributions.`,
+        action: `Check ${k.name}'s college fund progress in The Gauge.` });
+    }
+    if (k.age === 15 || k.age === 16) {
+      alerts.push({ sev: 'warn', icon: '🚗', type:'ls',
+        title: `${k.name} is approaching driving age`,
+        body: `Teen drivers add $1,200–$2,400/year to insurance. Start comparison shopping now and build a sinking fund for the premium increase.`,
+        action: `Get an insurance quote for adding a teen driver to your policy.` });
+    }
+  });
+
+  // Seasonal
+  const bym={};
+  txns.filter(t=>t.amount<0).forEach(t=>{const yr=t.date.slice(0,4),mo=parseInt(t.date.slice(5,7))-1;if(!bym[yr])bym[yr]=Array(12).fill(0);bym[yr][mo]+=Math.abs(t.amount);});
+  const yrs=Object.keys(bym);
+  if(yrs.length>=2){
+    const avg=Array(12).fill(0),cnt=Array(12).fill(0);
+    yrs.forEach(y=>bym[y].forEach((v,m)=>{if(v>0){avg[m]+=v;cnt[m]++;}}));
+    const base=avg.reduce((a,b)=>a+b,0)/12, nm2=(n.getMonth()+1)%12;
+    const nxa=cnt[nm2]?avg[nm2]/cnt[nm2]:0;
+    if(nxa>base*1.2) alerts.push({ sev:'info', icon:'📅', title:`${MONTHS[nm2]} is historically ${((nxa/base-1)*100).toFixed(0)}% above normal`, body:`You typically spend ${fmt(nxa)} in ${MONTHS[nm2]} vs ${fmt(base)} baseline.`, action:`Set aside an extra ${fmt(nxa-base)} this month.` });
+  }
+
+  return alerts;
+}
+
+function renderAlerts() {
+  const alerts = buildAlerts();
+  document.getElementById('alerts-sub').textContent = `${alerts.length} active flag${alerts.length!==1?'s':''} · updated on import · <span style='font-family:monospace;font-size:9px;opacity:.4;'>#87</span>`;
+  const dot = document.getElementById('alertDot');
+  dot.className = 'tab-dot' + (alerts.some(a=>a.sev==='danger') ? ' show' : '');
+  const el = document.getElementById('alerts-out');
+  if (!txns.length) { el.innerHTML = emptyHTML('alerts'); return; }
+  if (!alerts.length) {
+    el.innerHTML = `<div class="empty-wrap"><div class="empty-icon">🛡️</div><div class="empty-title">All clear</div><div class="empty-sub">No flags from The Furnace. Spending looks stable, ${family.user1}.</div></div>`;
+    return;
+  }
+  const cls = s => s==='danger'?'a-danger':s==='warn'?'a-warn':s==='info'?'a-info':'a-good';
+  el.innerHTML = alerts.map(a=>`
+    <div class="alert-card ${cls(a.sev)} ${a.type==='ls'?'a-ls':''}">
+      <div class="alert-emoji">${a.icon}</div>
+      <div class="alert-content">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-body">${a.body}</div>
+        <div class="alert-action">→ ${a.action}</div>
+      </div>
+    </div>`).join('') + '<div style="height:20px;"></div>';
+}
+
+// ════════════════════════════════════════════
+// DETAIL LENS
+// ════════════════════════════════════════════
+function renderAmazon() {
+  const el = document.getElementById('amz-out');
+  if (!amzItems.length) { el.innerHTML = emptyHTML('amazon'); return; }
+  const n=new Date();
+  const total=amzItems.reduce((s,i)=>s+i.total,0);
+  const orders=[...new Set(amzItems.map(i=>i.orderId).filter(Boolean))];
+  const rec=amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-2,1));
+  const recT=rec.reduce((s,i)=>s+i.total,0);
+  const mos=[...new Set(amzItems.map(i=>i.date.slice(0,7)))].length||1;
+  const amzThreshold = 80 - ((family.amzSensitivity||3)-1)*10;
+  let items=[...amzItems].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(amzF==='impulse') items=items.filter(i=>impulse(i)>=amzThreshold);
+  else if(amzF==='big') items=items.filter(i=>i.total>=50);
+  else if(amzF==='recent') items=items.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-1,1));
+  items=items.slice(0,40);
+
+  el.innerHTML=`
+    <div class="amz-hero">
+      <div class="amz-eyebrow">${family.familyName} Family · Detail Lens</div>
+      <div class="amz-title">🔍 Detail<span> Lens</span></div>
+      <div class="amz-big">${fmtK(total)}</div>
+      <div class="amz-big-sub">total · ${amzItems.length.toLocaleString()} items · ${[...new Set(amzItems.map(i=>i.source||'Amazon'))].join('/')}</div>
+    </div>
+    <div class="amz-stats">
+      <div class="amz-stat"><div class="amz-stat-lbl">Last 3 months</div><div class="amz-stat-val">${fmtK(recT)}</div></div>
+      <div class="amz-stat"><div class="amz-stat-lbl">Monthly avg</div><div class="amz-stat-val">${fmtK(total/mos)}</div></div>
+      <div class="amz-stat"><div class="amz-stat-lbl">Flagged</div><div class="amz-stat-val" style="color:var(--gold);">${amzItems.filter(i=>impulse(i)>=amzThreshold).length}</div></div>
+    </div>
+    ${(()=>{const pp=[...new Set(amzItems.map(i=>i.purchaser).filter(Boolean))];return pp.length?`<div style="display:flex;gap:8px;padding:10px 14px;background:var(--lift);border-top:1px solid var(--border);flex-wrap:wrap;">${pp.map(p=>{const pt=amzItems.filter(i=>i.purchaser===p).reduce((s,i)=>s+i.total,0);const mtdP=rec.filter(i=>i.purchaser===p).reduce((s,i)=>s+i.total,0);return`<div style="flex:1;min-width:120px;background:var(--card);border-radius:var(--r-sm);padding:8px 10px;"><div style="font-size:10px;color:var(--ink4);margin-bottom:2px;">👤 ${p}</div><div style="font-size:15px;font-weight:600;color:var(--ink);">${fmtK(pt)}</div><div style="font-size:10px;color:var(--ink4);">this month: ${fmt(mtdP)}</div></div>`;}).join('')}</div>`:'';})()}
+    <div class="amz-filters">
+      <div class="f-pill${amzF==='all'?' active':''}"    onclick="setAF('all',this)">All Items</div>
+      <div class="f-pill${amzF==='recent'?' active':''}" onclick="setAF('recent',this)">Recent</div>
+      <div class="f-pill${amzF==='impulse'?' active':''}"onclick="setAF('impulse',this)">🔴 Impulse</div>
+      <div class="f-pill${amzF==='big'?' active':''}"    onclick="setAF('big',this)">💰 $50+</div>
+    </div>
+    <div style="background:var(--card);border-top:1px solid var(--border);">
+      ${items.map(i=>{const sc=impulse(i); return`<div class="amz-item">
+        <div class="amz-icon">${catEmoji(i.category)}</div>
+        <div class="amz-info">
+          <div class="amz-item-title">${i.title}</div>
+          <div class="amz-meta">
+            <span class="amz-date">${i.date}</span>
+            <span class="amz-cat">${i.category}</span>
+            ${impBadge(sc)}
+          </div>
+        </div>
+        <div class="amz-price">${fmt(i.total)}</div>
+      </div>`;}).join('')}
+    </div>
+    <div style="height:20px;"></div>`;
+}
+
+function setAF(f, btn) { amzF=f; renderAmazon(); }
+
+// ════════════════════════════════════════════
+// ASK SID — FORGE INTELLIGENCE
+// ════════════════════════════════════════════
+function buildContext() {
+  if (!txns.length) return 'No financial data imported yet.';
+  const n=new Date(), cm=nowMo(), lm=prevMo();
+  const cmE=txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI=txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const lmE=txns.filter(t=>t.date.startsWith(lm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const net=cmI-cmE, sr=cmI>0?(net/cmI*100):0;
+  const y1=new Date(n.getFullYear()-1,n.getMonth()+1,1);
+  const yt=txns.filter(t=>new Date(t.date)>=y1);
+  const yi=yt.filter(t=>t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const ye=Math.abs(yt.filter(t=>t.amount<0).reduce((s,t)=>s+t.amount,0));
+  const catStr=cats3m().slice(0,8).map(([c,v])=>`${c}: ${fmtK(v)}`).join(', ');
+  const alerts=buildAlerts();
+  const goalsStr=goals.length?goals.map(g=>`${g.name}: ${fmt(g.current)}/${fmt(g.target)} (${((g.current/g.target)*100).toFixed(0)}%)`).join(', '):'No goals configured';
+  const amzT=amzItems.reduce((s,i)=>s+i.total,0);
+  // Per-purchaser detail breakdown
+  const purchasers=[...new Set(amzItems.map(i=>i.purchaser).filter(Boolean))];
+  const purchaserStr=purchasers.length?purchasers.map(p=>{
+    const mine=amzItems.filter(i=>i.purchaser===p);
+    const t=mine.reduce((s,i)=>s+i.total,0);
+    const top=(()=>{const c={};mine.forEach(i=>c[i.category]=(c[i.category]||0)+i.total);return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||'misc';})();
+    return `${p}: ${fmtK(t)} (top cat: ${top})`;
+  }).join(' | '):'No purchaser data';
+  // Per-person Quicken account spend
+  const acctOwners=family.accountOwners||{};
+  const ownerPeople=[...new Set(Object.values(acctOwners))];
+  const qkPurchaserStr=ownerPeople.length?ownerPeople.map(p=>{
+    const owned=Object.entries(acctOwners).filter(([,v])=>v===p).map(([k])=>k);
+    const t=Math.abs(txns.filter(tx=>owned.includes(tx.account)&&tx.amount<0).reduce((s,tx)=>s+tx.amount,0));
+    return `${p} (Quicken): ${fmtK(t)}`;
+  }).join(' | '):'';
+  const dates=txns.map(t=>t.date).sort();
+
+  // Life-stage context
+  const chrisAge=calcAge(family.user1Dob);
+  const ps=getParentStage(chrisAge);
+  const kids=getKidsContext();
+  const kidStr=kids.filter(k=>k.name).map(k=>`${k.name} (${k.age||'?'}, ${k.ls?.label||'unknown stage'}${k.yearsToCollege!==null?`, ${k.yearsToCollege} yrs to college`:''})`).join(', ');
+
+  return `THE ${family.familyName.toUpperCase()} FAMILY — FORGE FINANCIAL INTELLIGENCE
+Data: ${dates[0]} to ${dates[dates.length-1]} | Accounts: ${accounts.length} | Transactions: ${txns.length.toLocaleString()}
+
+FAMILY:
+- ${family.user1}${chrisAge?` (${chrisAge}${ps?', '+ps.label:''})`:''}
+- ${family.user2}${calcAge(family.user2Dob)?` (${calcAge(family.user2Dob)})`:''}
+- Kids: ${kidStr||'None configured'}
+
+CURRENT MONTH (${MONTHS[n.getMonth()]} ${n.getFullYear()}):
+Income: ${fmt(cmI)} | Expenses: ${fmt(cmE)} | Net: ${fmt(net)} | Savings rate: ${sr.toFixed(1)}%
+vs last month: ${lmE>0?((cmE-lmE)/lmE*100).toFixed(0)+'%':'N/A'} | Target rate: ${family.savingsTarget||20}%
+
+12-MONTH: Income ${fmtK(yi)} | Expenses ${fmtK(ye)} | Net ${fmtK(yi-ye)} | Rate ${yi>0?((yi-ye)/yi*100).toFixed(1):0}%
+
+TOP SPENDING CATEGORIES (3 months): ${catStr}
+
+FURNACE ALERTS: ${alerts.length?alerts.map(a=>a.title+': '+a.body).join(' | '):'None'}
+
+GOALS: ${goalsStr}
+
+AMAZON WATCHLIST: Total ${fmtK(amzT)} | Last 3mo ${fmtK(amzItems.filter(i=>new Date(i.date)>=new Date(n.getFullYear(),n.getMonth()-2,1)).reduce((s,i)=>s+i.total,0))}`;
+}
+
+function buildSidPrompt(msg) {
+  const u1=family.user1||'Chris', u2=family.user2||'Kira';
+  const mentionsKira = msg.toLowerCase().includes(u2.toLowerCase()) || msg.toLowerCase().includes('kira') || msg.toLowerCase().includes('wife') || msg.toLowerCase().includes('partner');
+  const isConfluence = msg.toLowerCase().includes('confluence') || msg.toLowerCase().includes('meeting') || msg.toLowerCase().includes('family review');
+  const chrisAge=calcAge(family.user1Dob);
+  const ps=getParentStage(chrisAge);
+
+  let mode = '';
+  if (isConfluence && family.confluenceMode) {
+    mode = `CONFLUENCE MODE: Speak to both ${u1} and ${u2} as a team. Use "we" and "you both." Acknowledge you're all reviewing together. Celebrate wins explicitly. Frame challenges as things "we can work on together." Use the family name: the ${family.familyName} family.`;
+  } else if (mentionsKira) {
+    mode = `STORY-FIRST MODE (${u2} is in the conversation): Context and narrative before numbers. Start with what's happening, then support with data. ${u2} is a Physician Assistant — analytically sharp but not finance-trained. Warm but never condescending.`;
+  } else {
+    mode = `DATA-FIRST MODE (${u1}): Numbers lead. Give the key figure in the first sentence. Analysis follows. ${u1} is a healthcare strategy director — analytically sophisticated, wants precision. "Savings rate 17%. Dining is the gap — up 22%." Direct and specific.`;
+  }
+
+  return `You are $id — named after Sidney Crosby, the greatest of his generation: precise, decisive, always sees the play before it develops. You are the AI financial intelligence engine inside Forge, a Pittsburgh-born personal finance platform.
+
+FAMILY: The ${family.familyName} family. ${u1}${chrisAge?` (${chrisAge}, ${ps?.label||''})`:''} and ${u2}. Kids: ${family.kids.filter(k=>k.name).map(k=>k.name).join(', ')||'none configured'}.
+
+${mode}
+
+ALWAYS: Use specific numbers from the data. End with one clear, actionable recommendation when relevant. Under 180 words unless depth is genuinely needed. No markdown headers. No asterisks. No hedging. Straight talk from someone who sees the full picture.
+
+NEVER: Say "I cannot" or "I apologize." Never be vague when data is available. $id finds the play, always.`;
+}
+
+// ── SID PROXY CONFIGURATION ──
+// Replace this URL with your Cloudflare Worker URL after setup.
+// See forge_worker.js for setup instructions (takes ~10 min, free).
+// Until configured, $id will show a setup prompt instead of an error.
+const SID_PROXY_URL = 'WORKER_URL_HERE';
+
+async function callSid(msg) {
+  // Check if proxy has been configured
+  if (!SID_PROXY_URL || SID_PROXY_URL === 'WORKER_URL_HERE') {
+    return getSidSetupMessage();
+  }
+
+  const ctx = buildContext();
+  const msgs = [
+    { role:'user',      content:`Financial data:\n\n${ctx}` },
+    { role:'assistant', content:`Got it — I have the full ${family.familyName} family picture. What would you like to dig into?` },
+    ...history,
+    { role:'user', content: msg }
+  ];
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const r = await fetch(SID_PROXY_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        model:     'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system:    buildSidPrompt(msg),
+        messages:  msgs,
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!r.ok) {
+      const errText = await r.text().catch(() => '');
+      throw new Error(`API ${r.status}: ${errText.slice(0,100)}`);
+    }
+
+    const d = await r.json();
+    const txt = d.content?.[0]?.text || '';
+    if (!txt) return '$id had trouble generating a response — try again.';
+    return txt;
+  } catch(e) {
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') throw new Error('Request timed out after 30 seconds.');
+    throw e;
+  }
+}
+
+function getSidSetupMessage() {
+  const u = family.user1 || 'there';
+  return `Hey ${u} — $id here. Almost ready, but one quick setup is needed before the chat works.
+
+To turn on the Ask $id feature, you need to connect a free Cloudflare Worker that keeps your API key secure. It takes about 10 minutes and costs nothing.
+
+STEP 1 — Get an API key
+Go to console.anthropic.com and sign in (or create a free account). Click API Keys in the left menu, then + Create Key. Name it anything you like. Copy the key right away — it starts with sk-ant- and is only shown once.
+
+STEP 2 — Add $5 in billing credits
+Still on console.anthropic.com, click Billing in the left menu and add $5. Without credits the API will not respond.
+
+STEP 3 — Create the Cloudflare Worker
+Go to dash.cloudflare.com (free). Click Workers and Pages → Create → Hello World → name it forge-sid → Deploy → Continue to project. Click Edit Code. Select all the default code and delete it. Paste in the forge_worker.js code from your Forge project files. Click Deploy.
+
+STEP 4 — Add your API key to the Worker
+On the Worker detail page, click Settings → Variables and Secrets → Add. Set the type to Secret. Name it ANTHROPIC_API_KEY. Paste your sk-ant- key as the value. Click Deploy.
+
+STEP 5 — Update Forge Pulse
+Open forge-pulse.html in a text editor. Find the line that says WORKER_URL_HERE and replace it with your Worker URL — something like https://forge-sid.yourname.workers.dev. Save the file and upload it to GitHub in place of the old version.
+
+Once those five steps are done, come back here and I will be fully ready. The snapshot, alerts, and Amazon watchlist all work right now — no setup needed for those.`;
+}
+
+function addBubble(text, role) {
+  const msgs=document.getElementById('chatMsgs');
+  const div=document.createElement('div');
+  div.className='bubble '+(role==='user'?'bubble-u':'bubble-a');
+  if(role==='assistant') {
+    div.innerHTML=`<div class="sid-lbl"><div class="sid-icon"></div>$id · Forge Intelligence · #87</div>${text.replace(/\n/g,'<br>')}`;
+  } else { div.textContent=text; }
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addTyping() { const m=document.getElementById('chatMsgs'); const d=document.createElement('div'); d.className='typing-wrap'; d.id='typ'; d.innerHTML='<div class="tdot"></div><div class="tdot"></div><div class="tdot"></div>'; m.appendChild(d); m.scrollTop=m.scrollHeight; }
+function rmTyping()  { const t=document.getElementById('typ'); if(t)t.remove(); }
+
+
+// ════════════════════════════════════════════════════════════
+// PULSE ANALYTICS — $id Mobile Intelligence
+// ════════════════════════════════════════════════════════════
+
+let pCatRange = '3m', pPurchaserRange = '3m';
+let pCatChart=null, pTrendChart=null, pPurchaserChart=null, pDowChart=null, pSavRateChart=null;
+
+function setPulseRange(range, btn, type) {
+  const container = btn.closest('.p-ana-dim-row');
+  container.querySelectorAll('.p-dim-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const labels = {'3m':'Last 3 mo','6m':'Last 6 mo','1y':'Last year','all':'All time'};
+  if (type === 'cat') {
+    pCatRange = range;
+    document.getElementById('p-cat-range-lbl').textContent = labels[range];
+    renderPulseCategories();
+  } else {
+    pPurchaserRange = range;
+    document.getElementById('p-purchaser-range-lbl').textContent = labels[range];
+    renderPulsePurchaser();
+  }
+}
+
+function getPulseSince(range) {
+  const n = new Date();
+  if (range==='3m') return new Date(n.getFullYear(), n.getMonth()-2, 1);
+  if (range==='6m') return new Date(n.getFullYear(), n.getMonth()-5, 1);
+  if (range==='1y') return new Date(n.getFullYear()-1, n.getMonth()+1, 1);
+  return new Date('2000-01-01');
+}
+
+function destroyPulseAna() {
+  [pCatChart, pTrendChart, pPurchaserChart, pDowChart, pSavRateChart].forEach(c => {
+    try { if(c) c.destroy(); } catch(e) {}
+  });
+  pCatChart=pTrendChart=pPurchaserChart=pDowChart=pSavRateChart=null;
+}
+
+function renderPulseAnalytics() {
+  if (!txns.length) return;
+  destroyPulseAna();
+  renderPulseCategories();
+  renderPulseTrend();
+  renderPulsePurchaser();
+  renderPulseDow();
+  renderPulseSavRate();
+}
+
+function renderPulseCategories() {
+  const ctx = document.getElementById('p-cat-chart')?.getContext('2d');
+  if (!ctx) return;
+  if (pCatChart) { try { pCatChart.destroy(); } catch(e) {} }
+  const since = getPulseSince(pCatRange);
+  const cats = {};
+  txns.filter(t=>new Date(t.date)>=since&&t.amount<0).forEach(t=>cats[t.category]=(cats[t.category]||0)+Math.abs(t.amount));
+  const sorted = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const total = sorted.reduce((s,[,v])=>s+v, 0);
+  const labels = sorted.map(([c])=>c), values = sorted.map(([,v])=>v);
+  try {
+    pCatChart = new Chart(ctx, {
+      type:'doughnut',
+      data:{labels, datasets:[{data:values, backgroundColor:['#F5A800','#60A5FA','#A78BFA','#2DD4BF','#F87171','#34D399','#FBBF24','#FB923C'].map(c=>c+'CC'), borderWidth:1, borderColor:'rgba(0,0,0,.2)', hoverOffset:6}]},
+      options:{responsive:true, maintainAspectRatio:false, animation:{duration:300}, cutout:'52%',
+        plugins:{legend:{position:'bottom', labels:{font:{size:9},boxWidth:8, color:'rgba(255,255,255,.5)',padding:6}}}}
+    });
+  } catch(e) {}
+  // Insights
+  const top = sorted[0];
+  const el = document.getElementById('p-cat-insights');
+  if (el && top) el.innerHTML = [
+    {lbl:'Total',val:fmtK(total)},
+    {lbl:'Top Cat',val:top[0].split(' ')[0]},
+    {lbl:'Top Spend',val:fmtK(top[1])},
+  ].map(i=>`<div class="p-insight"><div class="p-insight-lbl">${i.lbl}</div><div class="p-insight-val">${i.val}</div></div>`).join('');
+}
+
+function renderPulseTrend() {
+  const ctx = document.getElementById('p-trend-chart')?.getContext('2d');
+  if (!ctx) return;
+  const mos = [];
+  for (let i=11;i>=0;i--) { const d=new Date(); d.setMonth(d.getMonth()-i); mos.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); }
+  const inc = mos.map(m=>txns.filter(t=>t.date.startsWith(m)&&t.amount>0).reduce((s,t)=>s+t.amount,0));
+  const exp = mos.map(m=>txns.filter(t=>t.date.startsWith(m)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0));
+  try {
+    pTrendChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels:mos.map(m=>m.slice(5)), datasets:[
+        {label:'Income',data:inc,backgroundColor:'rgba(45,212,191,.7)',borderRadius:3,stack:'a'},
+        {label:'Spending',data:exp,backgroundColor:'rgba(248,113,113,.6)',borderRadius:3,stack:'b'},
+      ]},
+      options:{responsive:true, maintainAspectRatio:false, animation:{duration:300},
+        plugins:{legend:{labels:{font:{size:9},boxWidth:8,color:'rgba(255,255,255,.4)',padding:6}}},
+        scales:{y:{ticks:{callback:v=>fmtK(v),color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+                x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{display:false}}}
+      }
+    });
+  } catch(e) {}
+}
+
+function renderPulsePurchaser() {
+  const ctx = document.getElementById('p-purchaser-chart')?.getContext('2d');
+  if (!ctx) return;
+  if (pPurchaserChart) { try { pPurchaserChart.destroy(); } catch(e) {} }
+  const since = getPulseSince(pPurchaserRange);
+  const people = [...new Set([...Object.values(family.accountOwners||{}), ...amzItems.map(i=>i.purchaser).filter(Boolean)])];
+  const card = document.getElementById('p-purchaser-card');
+  if (!people.length) { if(card) card.style.display='none'; return; }
+  if(card) card.style.display='block';
+
+  const data = people.map(p => {
+    const accts = Object.entries(family.accountOwners||{}).filter(([,v])=>v===p).map(([k])=>k);
+    const qkn = Math.abs(txns.filter(t=>new Date(t.date)>=since&&t.amount<0&&accts.includes(t.account)).reduce((s,t)=>s+t.amount,0));
+    const det = amzItems.filter(i=>i.purchaser===p&&new Date(i.date)>=since).reduce((s,i)=>s+i.total,0);
+    return {p, qkn, det};
+  }).sort((a,b)=>(b.qkn+b.det)-(a.qkn+a.det));
+
+  try {
+    pPurchaserChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels:data.map(d=>d.p), datasets:[
+        {label:'Accounts',data:data.map(d=>d.qkn),backgroundColor:'rgba(245,168,0,.75)',borderRadius:4,stack:'a'},
+        {label:'Detail',data:data.map(d=>d.det),backgroundColor:'rgba(167,139,250,.75)',borderRadius:4,stack:'a'},
+      ]},
+      options:{responsive:true, maintainAspectRatio:false, animation:{duration:300},
+        plugins:{legend:{labels:{font:{size:9},boxWidth:8,color:'rgba(255,255,255,.4)'}}},
+        scales:{y:{ticks:{callback:v=>fmtK(v),color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+                x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{display:false}}}
+      }
+    });
+  } catch(e) {}
+}
+
+function renderPulseDow() {
+  const ctx = document.getElementById('p-dow-chart')?.getContext('2d');
+  if (!ctx) return;
+  const since = new Date(); since.setFullYear(since.getFullYear()-1);
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const totals={}, counts={};
+  days.forEach(d=>{totals[d]=0; counts[d]=0;});
+  txns.filter(t=>new Date(t.date)>=since&&t.amount<0).forEach(t=>{
+    const dn=days[([0,6,1,2,3,4,5])[new Date(t.date).getDay()]];
+    totals[dn]+=Math.abs(t.amount); counts[dn]++;
+  });
+  const avgs=days.map(d=>counts[d]>0?parseFloat((totals[d]/counts[d]).toFixed(2)):0);
+  try {
+    pDowChart = new Chart(ctx, {
+      type:'bar',
+      data:{labels:days, datasets:[{data:avgs, backgroundColor:['#F5A800','#60A5FA','#A78BFA','#2DD4BF','#F87171','#34D399','#FBBF24'].map(c=>c+'CC'), borderRadius:4, borderSkipped:false}]},
+      options:{responsive:true, maintainAspectRatio:false, animation:{duration:300},
+        plugins:{legend:{display:false}},
+        scales:{y:{ticks:{callback:v=>fmtK(v),color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+                x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{display:false}}}
+      }
+    });
+  } catch(e) {}
+}
+
+function renderPulseSavRate() {
+  const ctx = document.getElementById('p-savrate-chart')?.getContext('2d');
+  if (!ctx) return;
+  const mos=[];
+  for(let i=11;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);mos.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  const rates = mos.map(m => {
+    const inc=txns.filter(t=>t.date.startsWith(m)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+    const exp=Math.abs(txns.filter(t=>t.date.startsWith(m)&&t.amount<0).reduce((s,t)=>s+t.amount,0));
+    return inc>0 ? parseFloat(((inc-exp)/inc*100).toFixed(1)) : 0;
+  });
+  const target = family.savingsTarget || 20;
+  try {
+    pSavRateChart = new Chart(ctx, {
+      type:'line',
+      data:{labels:mos.map(m=>m.slice(5)), datasets:[
+        {label:'Savings Rate',data:rates, borderColor:'#F5A800', backgroundColor:'rgba(245,168,0,.08)', tension:.35, pointRadius:3, pointBackgroundColor:'#F5A800', fill:true},
+        {label:`Target ${target}%`, data:mos.map(()=>target), borderColor:'rgba(255,255,255,.2)', borderDash:[4,4], pointRadius:0, tension:0},
+      ]},
+      options:{responsive:true, maintainAspectRatio:false, animation:{duration:300},
+        plugins:{legend:{labels:{font:{size:9},boxWidth:8,color:'rgba(255,255,255,.4)'}}},
+        scales:{y:{ticks:{callback:v=>v+'%',color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},
+                x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{display:false}}}
+      }
+    });
+  } catch(e) {}
+}
+
+
+function sendWelcome() {
+  if (!txns.length) {
+    addBubble(`Hey — $id here.\n\nNo financial data yet. To get started, open Forge on your laptop or desktop, go to The Pour (the + button), and import your Quicken file. Once that's done, come back here and I'll have everything I need.\n\nThe first time you use the chat feature, you'll also need to complete a one-time setup. Just send me any message and I'll walk you through it — takes about 10 minutes.`, 'assistant');
+    return;
+  }
+  const n=new Date(), cm=nowMo();
+  const cmE=txns.filter(t=>t.date.startsWith(cm)&&t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
+  const cmI=txns.filter(t=>t.date.startsWith(cm)&&t.amount>0).reduce((s,t)=>s+t.amount,0);
+  const net=cmI-cmE, sr=cmI>0?(net/cmI*100):0;
+  const target=family.savingsTarget||20;
+  const kids=getKidsContext().filter(k=>k.name);
+  const kidContext = kids.length ? ` Tracking ${kids.map(k=>`${k.name} (${k.age||'?'})`).join(', ')}.` : '';
+  addBubble(`Hey ${family.user1} — $id here.${kidContext}\n\n${MONTHS[n.getMonth()]} so far: ${fmt(net>=0?net:Math.abs(net))} ${net>=0?'ahead':'behind'}. Savings rate ${sr.toFixed(0)}% — ${sr>=target?'above':'below'} your ${target}% target.\n\nWhat do you want to look at?`, 'assistant');
+}
+
+async function sendChat() {
+  const inp=document.getElementById('chatInput');
+  const msg=inp.value.trim(); if(!msg)return;
+  inp.value=''; inp.style.height='';
+  addBubble(msg,'user');
+  history.push({role:'user',content:msg});
+  addTyping();
+  document.getElementById('chatStatus').textContent='$id is reading the play…';
+  try {
+    const rep=await callSid(msg);
+    rmTyping(); addBubble(rep,'assistant');
+    history.push({role:'assistant',content:rep});
+    if(history.length>16) history=history.slice(-16);
+  } catch(e) {
+    rmTyping();
+    const errMsg = e.message || '';
+    let userMsg;
+    if (errMsg.includes('timed out')) {
+      userMsg = "$id took too long to respond — the servers may be busy. Wait a few seconds and try again. Shorter questions tend to come back faster.";
+    } else if (errMsg.includes('401')) {
+      userMsg = "$id cannot connect — the API key is not working. Open your Cloudflare Worker, go to Settings → Variables and Secrets, and make sure ANTHROPIC_API_KEY is set correctly with your key from console.anthropic.com.";
+    } else if (errMsg.includes('429')) {
+      userMsg = "$id is getting too many requests right now. Wait about 30 seconds and try again.";
+    } else if (errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError')) {
+      userMsg = "$id cannot reach the server. This usually means the Worker URL was not set up correctly. Open the Forge $id Setup Guide and check Step 4 — the URL should start with https:// and end with .workers.dev";
+    } else {
+      userMsg = `Something went wrong — $id could not respond. If this keeps happening, check that your Cloudflare Worker is deployed and your API key is set correctly.`;
+    }
+    addBubble(userMsg,'assistant');
+  }
+  document.getElementById('chatStatus').textContent='$id · #87';
+}
+
+function sendQ(el) { document.getElementById('chatInput').value=el.textContent; sendChat(); }
+function handleKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();} }
+function autoSize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+
+// ════════════════════════════════════════════
+// EMPTY STATE
+// ════════════════════════════════════════════
+function emptyHTML(tab) {
+  const icons={snapshot:'⚡',alerts:'🔥',amazon:'🔍'};
+  return `<div class="empty-wrap">
+    <div class="empty-icon">${icons[tab]||'⚡'}</div>
+    <div class="empty-title">No data yet</div>
+    <div class="empty-sub">Open <strong style="color:var(--gold);">Forge</strong> on a laptop or computer, run The Pour to import your files, then come back here.</div>
+    <div class="data-note" style="margin-top:20px;text-align:left;">
+      <strong style="color:var(--gold);">Quick start:</strong> Open Forge on a desktop browser and load the demo. To import real data: Quicken CSV or QIF, plus <strong>Retail.OrderHistory.1.csv</strong> from Amazon's "Request your data" portal (Account → Manage your data → Request your data → Your Orders).
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  loadFamily();
+  load();
+  renderSnapshot();
+  const alerts = buildAlerts();
+  document.getElementById('alertDot').className = 'tab-dot' + (alerts.some(a=>a.sev==='danger') ? ' show' : '');
+});
+</script>
+</body>
+</html>
