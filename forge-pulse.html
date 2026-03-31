@@ -50,6 +50,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html { height: 100%; overflow: hidden; }
 body {
+  opacity: 1 !important;
+  visibility: visible !important;
   font-family: var(--font-ui);
   background: var(--base);
   color: var(--ink);
@@ -572,14 +574,17 @@ let active = 'snapshot';
 function go(tab) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('pg-'+tab).classList.add('active');
-  document.getElementById('tab-'+tab).classList.add('active');
+  const pg = document.getElementById('pg-'+tab);
+  if (pg) { pg.classList.add('active'); pg.style.opacity='1'; }
+  const tb = document.getElementById('tab-'+tab);
+  if (tb) tb.classList.add('active');
   active = tab;
-  if (tab==='snapshot') renderSnapshot();
-  if (tab==='alerts')   renderAlerts();
-  if (tab==='amazon')   renderAmazon();
-  if (tab==='analytics') renderPulseAnalytics();
-  if (tab==='chat' && !chatReady) { chatReady=true; sendWelcome(); }
+  const safe=(fn,lbl)=>{ try{fn();}catch(e){console.error('Pulse '+lbl+' error:',e);} };
+  if (tab==='snapshot') safe(()=>renderSnapshot(),'snapshot');
+  if (tab==='alerts')   safe(()=>renderAlerts(),'alerts');
+  if (tab==='amazon')   safe(()=>renderAmazon(),'amazon');
+  if (tab==='analytics') safe(()=>renderPulseAnalytics(),'analytics');
+  if (tab==='chat' && !chatReady) { chatReady=true; safe(()=>sendWelcome(),'welcome'); }
 }
 
 // ════════════════════════════════════════════
@@ -1336,11 +1341,17 @@ function emptyHTML(tab) {
 // BOOT
 // ════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
-  loadFamily();
-  load();
-  renderSnapshot();
-  const alerts = buildAlerts();
-  document.getElementById('alertDot').className = 'tab-dot' + (alerts.some(a=>a.sev==='danger') ? ' show' : '');
+  // Force visibility immediately — prevent black screen on slow connections
+  document.body.style.opacity = '1';
+  document.body.style.visibility = 'visible';
+  try { loadFamily(); } catch(e) { console.warn('loadFamily:', e); }
+  try { load(); } catch(e) { console.warn('load:', e); }
+  try { renderSnapshot(); } catch(e) { console.warn('renderSnapshot:', e); }
+  try {
+    const alerts = buildAlerts();
+    const dot = document.getElementById('alertDot');
+    if (dot) dot.className = 'tab-dot' + (alerts.some(a=>a.sev==='danger') ? ' show' : '');
+  } catch(e) { console.warn('alerts boot:', e); }
 });
 </script>
 </body>
